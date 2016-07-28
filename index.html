@@ -32,8 +32,16 @@
 <h3>
 <a id="roadmap-and-vision" class="anchor" href="#roadmap-and-vision" aria-hidden="true"><span aria-hidden="true" class="octicon octicon-link"></span></a>Roadmap and vision</h3>
 
-<p>As above, the main inspiration for this project came from Linq2Sql DataContext, meaning the syntax (in an ideal implementation) would be similar to the following:
-    Code snippet here</p>
+<p>As above, the main inspiration for this project came from Linq2Sql DataContext, meaning the syntax (in an ideal implementation) would be similar to the following:</p>
+
+<pre><code>using (var ctx = new MongoDbContext()) 
+{ 
+    var entity = ctx.Entities.Find(z =&gt; z.Foo == "Bar").SingleOrDefault();
+    entity.Baz = 1;
+
+    ctx.SubmitChanges();
+}
+</code></pre>
 
 <h3>
 <a id="authors-and-contributors" class="anchor" href="#authors-and-contributors" aria-hidden="true"><span aria-hidden="true" class="octicon octicon-link"></span></a>Authors and Contributors</h3>
