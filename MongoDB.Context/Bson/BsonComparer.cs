@@ -7,11 +7,11 @@ namespace MongoDB.Context.Bson
 		where T : BsonValue
 		where TDocument : AbstractMongoEntityWithId<TIdField>
 	{
-		protected readonly object[] _ElementPath;
+		protected readonly object[] ElementPath;
 
 		protected BsonComparer(object[] elementPath)
 		{
-			_ElementPath = elementPath;
+			ElementPath = elementPath;
 		}
 
 		public abstract BsonDifference<TDocument, TIdField>[] GetDifferences(T left, T right);

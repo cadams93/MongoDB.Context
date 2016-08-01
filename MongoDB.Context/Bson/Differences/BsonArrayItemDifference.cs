@@ -14,7 +14,7 @@ namespace MongoDB.Context.Bson.Differences
 		private readonly int _Idx;
 		private readonly BsonValue _ArrayItem;
 
-		public BsonArrayItemDifference(BsonArrayItemDifferenceType type ,object[] fieldPath, int idx, BsonValue item)
+		public BsonArrayItemDifference(BsonArrayItemDifferenceType type, object[] fieldPath, int idx, BsonValue item)
 		{
 			_Type = type;
 			_FieldPath = fieldPath;

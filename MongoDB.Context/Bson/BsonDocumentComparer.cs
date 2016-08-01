@@ -21,14 +21,14 @@ namespace MongoDB.Context.Bson
 			var elementsToRemove = left.Names.Where(z => !right.Names.Contains(z)).ToArray();
 			foreach (var elementToRemove in elementsToRemove)
 			{
-				var newElementPath = _ElementPath.Concat(new[] { elementToRemove }).ToArray();
+				var newElementPath = ElementPath.Concat(new[] { elementToRemove }).ToArray();
 				differences.Add(new BsonFieldDifference<TDocument, TIdField>(newElementPath, left[elementToRemove], null));
 			}
 
 			// Iterate over the new document fields (order matters!)
 			foreach (var fieldName in right.Names)
 			{
-				var newElementPath = _ElementPath.Concat(new[] { fieldName }).ToArray();
+				var newElementPath = ElementPath.Concat(new[] { fieldName }).ToArray();
 				var newValue = right[fieldName];
 
 				// If the old document doesn't have this field, its a simple addition of the field
@@ -41,7 +41,7 @@ namespace MongoDB.Context.Bson
 				// Check the types of the fields match - if not, throw an exception
 				var oldValue = left[fieldName];
 				if (oldValue.BsonType != newValue.BsonType && !(oldValue.IsBsonNull || newValue.IsBsonNull))
-					throw new InvalidOperationException(string.Format("Value for field {0} used to be of type {1}, trying to set as type {2}", string.Join(".", _ElementPath.Select(z => z.ToString())), oldValue.BsonType, newValue.BsonType));
+					throw new InvalidOperationException(string.Format("Value for field {0} used to be of type {1}, trying to set as type {2}", string.Join(".", ElementPath.Select(z => z.ToString())), oldValue.BsonType, newValue.BsonType));
 
 				// Handle arrays
 				if (newValue.IsBsonArray)

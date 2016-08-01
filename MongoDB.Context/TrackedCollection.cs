@@ -3,9 +3,9 @@ using System.Collections.ObjectModel;
 
 namespace MongoDB.Context
 {
-	internal class TrackedCollection<T, TIdField> where T : AbstractMongoEntityWithId<TIdField>
+	public class TrackedCollection<T, TIdField> where T : AbstractMongoEntityWithId<TIdField>
 	{
-		internal class TrackedCollectionById : KeyedCollection<TIdField, TrackedEntity<T, TIdField>>
+		private class TrackedCollectionById : KeyedCollection<TIdField, TrackedEntity<T, TIdField>>
 		{
 			protected override TIdField GetKeyForItem(TrackedEntity<T, TIdField> item)
 			{
@@ -13,7 +13,7 @@ namespace MongoDB.Context
 			}
 		}
 
-		internal class TrackedCollectionByEntity : KeyedCollection<T, TrackedEntity<T, TIdField>>
+		private class TrackedCollectionByEntity : KeyedCollection<T, TrackedEntity<T, TIdField>>
 		{
 			protected override T GetKeyForItem(TrackedEntity<T, TIdField> item)
 			{

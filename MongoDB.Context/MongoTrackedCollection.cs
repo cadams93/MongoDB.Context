@@ -113,7 +113,7 @@ namespace MongoDB.Context
 			var deletes = allTrackedEntities.Where(z => z.State == EntityState.Deleted).ToArray();
 
 			var updates = allTrackedEntities.Where(z => z.State == EntityState.ReadFromSource)
-				.ToDictionary(z => z.Entity._Id, z => z.GetDifferences())
+				.ToDictionary(z => z.Entity, z => z.GetDifferences())
 				.Where(z => z.Value.Any())
 				.ToDictionary(z => z.Key, z => z.Value.AsEnumerable());
 

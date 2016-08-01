@@ -8,12 +8,12 @@ namespace MongoDB.Context
 		where TDocument : AbstractMongoEntityWithId<TIdField>
 	{
 		public TrackedEntity<TDocument, TIdField>[] Inserts { get; private set; }
-		public Dictionary<TIdField, BsonDifference<TDocument, TIdField>[]> Updates { get; private set; }
+		public Dictionary<TDocument, BsonDifference<TDocument, TIdField>[]> Updates { get; private set; }
 		public TrackedEntity<TDocument, TIdField>[] Deletes { get; private set; }
 
 		public MongoChangeSet(
 			IEnumerable<TrackedEntity<TDocument, TIdField>> inserts, 
-			Dictionary<TIdField, IEnumerable<BsonDifference<TDocument, TIdField>>> updates,
+			Dictionary<TDocument, IEnumerable<BsonDifference<TDocument, TIdField>>> updates,
 			IEnumerable<TrackedEntity<TDocument, TIdField>> deletes)
 		{
 			Inserts = inserts.ToArray();
