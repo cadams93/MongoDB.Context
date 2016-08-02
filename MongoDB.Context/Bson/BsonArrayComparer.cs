@@ -2,7 +2,6 @@
 using System.Linq;
 using MongoDB.Bson;
 using MongoDB.Context.Bson.Differences;
-using MongoDB.Context.Bson.Lcs;
 
 namespace MongoDB.Context.Bson
 {
