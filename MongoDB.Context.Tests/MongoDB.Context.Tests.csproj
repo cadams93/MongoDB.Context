@@ -63,6 +63,8 @@
     <Compile Include="ContextMultipleOperationTests.cs" />
     <Compile Include="ContextTestBase.cs" />
     <Compile Include="ContextUpdateTests.cs" />
+    <Compile Include="Lcs\SimpleObjectLcsTests.cs" />
+    <Compile Include="Lcs\StringLcsTests.cs" />
     <Compile Include="MockMongoContext.cs" />
     <Compile Include="MockMongoTrackedCollection.cs" />
     <Compile Include="OperatorType.cs" />

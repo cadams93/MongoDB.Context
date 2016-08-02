@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Linq;
 using MongoDB.Bson;
 using MongoDB.Driver;
@@ -6,8 +7,8 @@ using MongoDB.Driver;
 namespace MongoDB.Context.Bson.Differences
 {
 	public class BsonArrayItemDifference<TDocument, TIdField>
-		   : BsonDifference<TDocument, TIdField>
-		   where TDocument : AbstractMongoEntityWithId<TIdField>
+		: BsonDifference<TDocument, TIdField>
+		where TDocument : AbstractMongoEntityWithId<TIdField>
 	{
 		private readonly BsonArrayItemDifferenceType _Type;
 		private readonly object[] _FieldPath;
@@ -27,13 +28,23 @@ namespace MongoDB.Context.Bson.Differences
 			switch (_Type)
 			{
 				case BsonArrayItemDifferenceType.Add:
-					// TODO: Add this
-					return null;
+					return new BsonDocumentUpdateDefinition<TDocument>(
+						new BsonDocument("$push", 
+							new BsonDocument(string.Join(".", _FieldPath.Select(z => z.ToString())), 
+								new BsonDocument(new Dictionary<string, object>
+								{
+									{ "$each", new BsonArray(new [] {_ArrayItem }) },
+									{ "$position",  _Idx}
+								}))
+							)
+						);
 				case BsonArrayItemDifferenceType.Remove:
-					return Builders<TDocument>.Update.Pull(string.Join(".", _FieldPath.Select(z => z.ToString())) + _Idx.ToString(), _ArrayItem);
-				case BsonArrayItemDifferenceType.Modify:
-					// TODO: Add this
-					return null;
+					return new BsonDocumentUpdateDefinition<TDocument>(
+						new BsonDocument(new Dictionary<string, object> {
+							{ "$unset", string.Join(".", _FieldPath.Select(z => z.ToString()).Concat(new object[] { _Idx })) },
+							{ "$pull", null }
+						})
+					);
 				default:
 					throw new ArgumentOutOfRangeException();
 			}

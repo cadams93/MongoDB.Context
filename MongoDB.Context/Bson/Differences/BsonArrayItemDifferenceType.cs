@@ -3,7 +3,6 @@
 	public enum BsonArrayItemDifferenceType
 	{
 		Add = 1,
-		Remove = 2,
-		Modify = 3
+		Remove = 2
 	}
 }

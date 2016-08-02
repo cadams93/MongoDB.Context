@@ -312,7 +312,51 @@ namespace MongoDB.Context.Tests
 			});
 
 			var differences = _Comparer.GetDifferences(left, right);
-			Assert.AreEqual(1, differences.Length);
+			Assert.AreEqual(2, differences.Length);
+		}
+
+		[TestMethod]
+		public void Should_OneChange_WhenArrayItemRemovedAndAnotherModified()
+		{
+			var left = new BsonDocument(new Dictionary<string, object>
+			{
+				{ "A", 1 },
+				{ "B", "OLD VALUE" },
+				{ "C", 
+					new []
+					{
+						new Dictionary<string, object>
+						{
+							{ "TEST A1", "C.1" },
+							{ "TEST A2", "C.2" }
+						},
+						new Dictionary<string, object>
+						{
+							{ "TEST B1", "C.3" },
+							{ "TEST B2", "C.4" }
+						}
+					} 
+				}
+			});
+
+			var right = new BsonDocument(new Dictionary<string, object>
+			{
+				{ "A", 1 },
+				{ "B", "OLD VALUE" },
+				{ "C", 
+					new []
+					{
+						new Dictionary<string, object>
+						{
+							{ "TEST B1", "NEW VALUE" },
+							{ "TEST B2", "C.4" }
+						}
+					} 
+				}
+			});
+
+			var differences = _Comparer.GetDifferences(left, right);
+			Assert.AreEqual(2, differences.Length);
 		}
 	}
 }

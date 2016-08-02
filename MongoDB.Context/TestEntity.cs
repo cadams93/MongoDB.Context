@@ -40,9 +40,16 @@ namespace MongoDB.Context
 		public int Integer { get; set; }
 	}
 
-	public class SimpleObject : AbstractMongoEntity
+	public class SimpleObject : AbstractMongoEntity, IEquatable<SimpleObject>
 	{
 		public int Integer { get; set; }
 		public string String { get; set; }
+
+		public bool Equals(SimpleObject other)
+		{
+			if (other == null) return false;
+			return this.Integer == other.Integer
+			       && this.String == other.String;
+		}
 	}
 }
