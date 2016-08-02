@@ -58,6 +58,7 @@
     <Compile Include="AbstractMongoEntity.cs" />
     <Compile Include="AbstractMongoEntityWithId.cs" />
     <Compile Include="Bson\BsonArrayComparer.cs" />
+    <Compile Include="Bson\BsonArrayLcsAlgorithm.cs" />
     <Compile Include="Bson\BsonComparer.cs" />
     <Compile Include="Bson\BsonDocumentComparer.cs" />
     <Compile Include="Bson\BsonFieldComparer.cs" />
@@ -65,7 +66,6 @@
     <Compile Include="Bson\Differences\BsonArrayItemDifferenceType.cs" />
     <Compile Include="Bson\Differences\BsonDifference.cs" />
     <Compile Include="Bson\Differences\BsonFieldDifference.cs" />
-    <Compile Include="Bson\Lcs\BsonArrayLcsAlgorithm.cs" />
     <Compile Include="EntityState.cs" />
     <Compile Include="IMongoTrackedCollection.cs" />
     <Compile Include="Lcs\LcsAlgorithm.cs" />
