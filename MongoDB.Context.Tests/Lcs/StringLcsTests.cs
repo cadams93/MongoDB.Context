@@ -1,12 +1,12 @@
-﻿using Microsoft.VisualStudio.TestTools.UnitTesting;
-using MongoDB.Context.Lcs;
+﻿using MongoDB.Context.Lcs;
+using NUnit.Framework;
 
 namespace MongoDB.Context.Tests.Lcs
 {
-	[TestClass]
+	[TestFixture]
 	public class StringLcsTests
 	{
-		[TestMethod]
+		[Test]
 		public void Should_NoOverlap_WhenDifferentStrings()
 		{
 			var alg = new LcsAlgorithm<char>();
@@ -15,7 +15,7 @@ namespace MongoDB.Context.Tests.Lcs
 			Assert.AreEqual(0, result.Sequence.Count);
 		}
 
-		[TestMethod]
+		[Test]
 		public void Should_OverlapFour_WhenStringPrefixEqual()
 		{
 			var alg = new LcsAlgorithm<char>();
@@ -30,7 +30,7 @@ namespace MongoDB.Context.Tests.Lcs
 			Assert.AreEqual(4, result3.Sequence.Count);
 		}
 
-		[TestMethod]
+		[Test]
 		public void Should_OverlapFour_WhenStringSuffixEqual()
 		{
 			var alg = new LcsAlgorithm<char>();
@@ -45,7 +45,7 @@ namespace MongoDB.Context.Tests.Lcs
 			Assert.AreEqual(4, result3.Sequence.Count);
 		}
 
-		[TestMethod]
+		[Test]
 		public void Should_OverlapFour_WhenHelloAndHolloCompared()
 		{
 			var alg = new LcsAlgorithm<char>();
@@ -54,7 +54,7 @@ namespace MongoDB.Context.Tests.Lcs
 			Assert.AreEqual(4, result.Sequence.Count);
 		}
 
-		[TestMethod]
+		[Test]
 		public void Should_NoOverlap_WhenStringCaseIncorrect()
 		{
 			var alg = new LcsAlgorithm<char>();

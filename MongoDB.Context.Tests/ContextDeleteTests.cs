@@ -1,12 +1,12 @@
 ﻿using System.Linq;
-using Microsoft.VisualStudio.TestTools.UnitTesting;
+using NUnit.Framework;
 
 namespace MongoDB.Context.Tests
 {
-	[TestClass]
+	[TestFixture]
 	public class ContextDeleteTests : ContextTestBase
 	{
-		[TestMethod]
+		[Test]
 		public void Should_NoDelete_WhenNoChange()
 		{
 			using (var ctx = GetMongoContext())
@@ -16,7 +16,7 @@ namespace MongoDB.Context.Tests
 			}
 		}
 
-		[TestMethod]
+		[Test]
 		public void Should_OneDelete_WhenOneEntityIsDeleted()
 		{
 			using (var ctx = GetMongoContext())
@@ -29,7 +29,7 @@ namespace MongoDB.Context.Tests
 			}
 		}
 
-		[TestMethod]
+		[Test]
 		public void Should_TwoDeletes_WhenTwoEntitiesAreDeleted()
 		{
 			using (var ctx = GetMongoContext())

@@ -1,12 +1,12 @@
 ﻿using System.Linq;
-using Microsoft.VisualStudio.TestTools.UnitTesting;
+using NUnit.Framework;
 
 namespace MongoDB.Context.Tests
 {
-	[TestClass]
+	[TestFixture]
 	public class ContextUpdateTests : ContextTestBase
 	{
-		[TestMethod]
+		[Test]
 		public void Should_NoUpdate_WhenNoChange()
 		{
 			using (var ctx = GetMongoContext())
@@ -16,7 +16,7 @@ namespace MongoDB.Context.Tests
 			}
 		}
 
-		[TestMethod]
+		[Test]
 		public void Should_OneSet_WhenOneRootDocumentFieldChanged()
 		{
 			using (var ctx = GetMongoContext())
@@ -36,7 +36,7 @@ namespace MongoDB.Context.Tests
 			}
 		}
 
-		[TestMethod]
+		[Test]
 		public void Should_OneSet_WhenTwoRootDocumentFieldsChanged()
 		{
 			using (var ctx = GetMongoContext())
@@ -58,7 +58,7 @@ namespace MongoDB.Context.Tests
 			}
 		}
 
-		[TestMethod]
+		[Test]
 		public void Should_OneSet_WhenOneRootDocumentFieldIsChangedTwice()
 		{
 			using (var ctx = GetMongoContext())
@@ -79,7 +79,7 @@ namespace MongoDB.Context.Tests
 			}
 		}
 
-		[TestMethod]
+		[Test]
 		public void Should_NoUpdate_WhenOneRootDocumentFieldIsChangedAndThenChangedBack()
 		{
 			using (var ctx = GetMongoContext())
@@ -93,7 +93,7 @@ namespace MongoDB.Context.Tests
 			}
 		}
 
-		[TestMethod]
+		[Test]
 		public void Should_OnePush_WhenAnElementIsAddedToAnArrayDocumentField()
 		{
 			using (var ctx = GetMongoContext())
@@ -106,7 +106,7 @@ namespace MongoDB.Context.Tests
 			}
 		}
 
-		[TestMethod]
+		[Test]
 		public void Should_OnePull_WhenAnElementIsRemovedFromAnArrayDocumentField()
 		{
 			using (var ctx = GetMongoContext())
@@ -119,7 +119,7 @@ namespace MongoDB.Context.Tests
 			}
 		}
 
-		[TestMethod]
+		[Test]
 		public void Should_NoUpdate_WhenOneArrayFieldIsChangedAndThenChangedBack()
 		{
 			using (var ctx = GetMongoContext())
@@ -133,7 +133,7 @@ namespace MongoDB.Context.Tests
 			}
 		}
 
-		[TestMethod]
+		[Test]
 		public void Should_OneUpdate_WhenOneSubDocumentFieldIsChanged()
 		{
 			using (var ctx = GetMongoContext())
@@ -153,7 +153,7 @@ namespace MongoDB.Context.Tests
 			}
 		}
 
-		[TestMethod]
+		[Test]
 		public void Should_OneUpdate_WhenTwoSubDocumentFieldsAreChanged()
 		{
 			using (var ctx = GetMongoContext())
@@ -174,7 +174,7 @@ namespace MongoDB.Context.Tests
 			}
 		}
 
-		[TestMethod]
+		[Test]
 		public void Should_NoUpdate_WhenOneSubDocumentFieldIsChangedAndThenChangedBack()
 		{
 			using (var ctx = GetMongoContext())
@@ -188,7 +188,7 @@ namespace MongoDB.Context.Tests
 			}
 		}
 
-		[TestMethod]
+		[Test]
 		public void Should_OneUpdate_WhenOneRootDocumentFieldAndOneSubDocumentFieldIsChanged()
 		{
 			using (var ctx = GetMongoContext())
@@ -210,7 +210,7 @@ namespace MongoDB.Context.Tests
 			}
 		}
 
-		[TestMethod]
+		[Test]
 		public void Should_OneUpdate_WhenOneRootDocumentFieldAndTwoSubDocumentFieldsAreChanged()
 		{
 			using (var ctx = GetMongoContext())
@@ -233,7 +233,7 @@ namespace MongoDB.Context.Tests
 			}
 		}
 
-		[TestMethod]
+		[Test]
 		public void Should_OneUpdate_WhenArrayDocumentItemModified()
 		{
 			using (var ctx = GetMongoContext())

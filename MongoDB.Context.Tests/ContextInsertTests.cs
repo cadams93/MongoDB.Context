@@ -1,11 +1,11 @@
-﻿using Microsoft.VisualStudio.TestTools.UnitTesting;
+﻿using NUnit.Framework;
 
 namespace MongoDB.Context.Tests
 {
-	[TestClass]
+	[TestFixture]
 	public class ContextInsertTests : ContextTestBase
 	{
-		[TestMethod]
+		[Test]
 		public void Should_NoInsert_WhenNoChange()
 		{
 			using (var ctx = new MockMongoContext(new TestEntity[] {}))
@@ -15,7 +15,7 @@ namespace MongoDB.Context.Tests
 			}
 		}
 
-		[TestMethod]
+		[Test]
 		public void Should_OneInsert_WhenOneEntityIsInserted()
 		{
 			using (var ctx = new MockMongoContext(new TestEntity[] {}))
@@ -30,7 +30,7 @@ namespace MongoDB.Context.Tests
 			}
 		}
 
-		[TestMethod]
+		[Test]
 		public void Should_TwoInserts_WhenTwoEntitiesAreInserted()
 		{
 			using (var ctx = new MockMongoContext(new TestEntity[] {}))

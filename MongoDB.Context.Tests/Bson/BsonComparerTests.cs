@@ -1,23 +1,23 @@
 ﻿using System;
 using System.Collections.Generic;
-using Microsoft.VisualStudio.TestTools.UnitTesting;
 using MongoDB.Bson;
 using MongoDB.Context.Bson;
+using NUnit.Framework;
 
-namespace MongoDB.Context.Tests
+namespace MongoDB.Context.Tests.Bson
 {
-	[TestClass]
+	[TestFixture]
 	public class BsonComparerTests
 	{
 		private BsonDocumentComparer<TestEntity, ObjectId> _Comparer;
 
-		[TestInitialize]
+		[OneTimeSetUp]
 		public void Setup()
 		{
 			_Comparer = new BsonDocumentComparer<TestEntity, ObjectId>();
 		}
 
-		[TestMethod]
+		[Test]
 		public void Should_OneChange_WhenOneFieldChange()
 		{
 			var left = new BsonDocument(new Dictionary<string, object>
@@ -36,7 +36,7 @@ namespace MongoDB.Context.Tests
 			Assert.AreEqual(1, differences.Length);
 		}
 
-		[TestMethod]
+		[Test]
 		public void Should_OneChange_WhenOneFieldRemoved()
 		{
 			var left = new BsonDocument(new Dictionary<string, object>
@@ -54,7 +54,7 @@ namespace MongoDB.Context.Tests
 			Assert.AreEqual(1, differences.Length);
 		}
 
-		[TestMethod]
+		[Test]
 		public void Should_TwoChanges_WhenTwoFieldsRemoved()
 		{
 			var left = new BsonDocument(new Dictionary<string, object>
@@ -69,7 +69,7 @@ namespace MongoDB.Context.Tests
 			Assert.AreEqual(2, differences.Length);
 		}
 
-		[TestMethod]
+		[Test]
 		public void Should_TwoChanges_WhenOneFieldAndAnotherAdded()
 		{
 			var left = new BsonDocument(new Dictionary<string, object>
@@ -88,7 +88,7 @@ namespace MongoDB.Context.Tests
 			Assert.AreEqual(2, differences.Length);
 		}
 
-		[TestMethod]
+		[Test]
 		public void Should_OneChange_WhenOneFieldAdded()
 		{
 			var left = new BsonDocument(new Dictionary<string, object>
@@ -108,9 +108,8 @@ namespace MongoDB.Context.Tests
 			Assert.AreEqual(1, differences.Length);
 		}
 
-		[TestMethod]
-		[ExpectedException(typeof(InvalidOperationException), "Value for field C used to be of type BsonArray, trying to set as type BsonString")]
-		public void Should_ThrowException_WhenFieldTypeChangedFromArrayToString()
+		[Test]
+		public void Should_ThrowException_WhenFieldTypeChangedFromArrayToInteger()
 		{
 			var left = new BsonDocument(new Dictionary<string, object>
 			{
@@ -132,12 +131,12 @@ namespace MongoDB.Context.Tests
 				{ "C", 1 }
 			});
 
-			_Comparer.GetDifferences(left, right);
+			var ex = Assert.Throws<InvalidOperationException>(delegate { _Comparer.GetDifferences(left, right); });
+			Assert.That(ex.Message, Is.EqualTo("Value for field C used to be of type Array, trying to set as type Int32"));
 		}
 
-		[TestMethod]
-		[ExpectedException(typeof(InvalidOperationException), "Value for field C used to be of type BsonString, trying to set as an array")]
-		public void Should_ThrowException_WhenFieldTypeChangedFromStringToArray()
+		[Test]
+		public void Should_ThrowException_WhenFieldTypeChangedFromIntegerToArray()
 		{
 			var left = new BsonDocument(new Dictionary<string, object>
 			{
@@ -159,11 +158,11 @@ namespace MongoDB.Context.Tests
 				}
 			});
 
-			_Comparer.GetDifferences(left, right);
+			var ex = Assert.Throws<InvalidOperationException>(delegate { _Comparer.GetDifferences(left, right); });
+			Assert.That(ex.Message, Is.EqualTo("Value for field C used to be of type Int32, trying to set as type Array"));
 		}
 
-		[TestMethod]
-		[ExpectedException(typeof(InvalidOperationException), "Value for field C used to be of type BsonInteger, trying to set as type BsonString")]
+		[Test]
 		public void Should_ThrowException_WhenFieldTypeChangedFromIntegerToString()
 		{
 			var left = new BsonDocument(new Dictionary<string, object>
@@ -180,10 +179,11 @@ namespace MongoDB.Context.Tests
 				{ "C", "1" }
 			});
 
-			_Comparer.GetDifferences(left, right);
+			var ex = Assert.Throws<InvalidOperationException>(delegate { _Comparer.GetDifferences(left, right); });
+			Assert.That(ex.Message, Is.EqualTo("Value for field C used to be of type Int32, trying to set as type String"));
 		}
 
-		[TestMethod]
+		[Test]
 		public void Should_NoChange_WhenArrayUnchanged()
 		{
 			var left = new BsonDocument(new Dictionary<string, object>
@@ -216,7 +216,7 @@ namespace MongoDB.Context.Tests
 			Assert.AreEqual(0, differences.Length);
 		}
 
-		[TestMethod]
+		[Test]
 		public void Should_OneChange_WhenArrayItemAdded()
 		{
 			var left = new BsonDocument(new Dictionary<string, object>
@@ -250,7 +250,7 @@ namespace MongoDB.Context.Tests
 			Assert.AreEqual(1, differences.Length);
 		}
 
-		[TestMethod]
+		[Test]
 		public void Should_OneChange_WhenArrayItemRemoved()
 		{
 			var left = new BsonDocument(new Dictionary<string, object>
@@ -282,7 +282,7 @@ namespace MongoDB.Context.Tests
 			Assert.AreEqual(1, differences.Length);
 		}
 
-		[TestMethod]
+		[Test]
 		public void Should_OneChange_WhenArrayItemRemovedAndAnotherInserted()
 		{
 			var left = new BsonDocument(new Dictionary<string, object>
@@ -315,7 +315,7 @@ namespace MongoDB.Context.Tests
 			Assert.AreEqual(2, differences.Length);
 		}
 
-		[TestMethod]
+		[Test]
 		public void Should_OneChange_WhenArrayItemRemovedAndAnotherModified()
 		{
 			var left = new BsonDocument(new Dictionary<string, object>

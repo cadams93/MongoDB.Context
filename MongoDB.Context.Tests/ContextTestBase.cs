@@ -1,5 +1,5 @@
 ﻿using System.Collections.Generic;
-using Microsoft.VisualStudio.TestTools.UnitTesting;
+using NUnit.Framework;
 
 namespace MongoDB.Context.Tests
 {
@@ -7,7 +7,7 @@ namespace MongoDB.Context.Tests
 	{
 		protected TestEntity[] _TestEntities;
 
-		[TestInitialize]
+		[OneTimeSetUp]
 		public void Setup()
 		{
 			_TestEntities = GetTestEntities();
