@@ -1,6 +1,6 @@
 # MongoDB.Context
 
-[![Build status](https://ci.appveyor.com/api/projects/status/qu40i3m3w3dkx0kr?svg=true)](https://ci.appveyor.com/project/cadams93/mongodb-context)
+[![Build Status](https://travis-ci.org/cadams93/MongoDB.Context.svg?branch=master)](https://travis-ci.org/cadams93/MongoDB.Context)
 
 Object Change Tracking for MongoDB entities
 
