@@ -1,24 +1,10 @@
 ﻿using System.Collections.Generic;
-using NUnit.Framework;
 
 namespace MongoDB.Context.Tests
 {
 	public class ContextTestBase
 	{
-		protected TestEntity[] _TestEntities;
-
-		[OneTimeSetUp]
-		public void Setup()
-		{
-			_TestEntities = GetTestEntities();
-		}
-
-		protected MockMongoContext GetMongoContext()
-		{
-			return new MockMongoContext(_TestEntities);
-		}
-
-		protected static TestEntity[] GetTestEntities()
+		protected TestEntity[] GetTestEntities()
 		{
 			return new[]
 			{

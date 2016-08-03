@@ -8,27 +8,27 @@ namespace MongoDB.Context.Tests
 		public static void AssertNoChange<TDocument, TIdField>(this MongoChangeSet<TDocument, TIdField> changes) 
 			where TDocument : AbstractMongoEntityWithId<TIdField>
 		{
-			Assert.AreEqual(0, changes.Inserts.Count());
-			Assert.AreEqual(0, changes.Updates.Count());
-			Assert.AreEqual(0, changes.Deletes.Count());
+			Assert.That(changes.Inserts.Count(), Is.EqualTo(0));
+			Assert.That(changes.Updates.Count(), Is.EqualTo(0));
+			Assert.That(changes.Deletes.Count(), Is.EqualTo(0));
 		}
 
 		public static void AssertInsertCount<TDocument, TIdField>(this MongoChangeSet<TDocument, TIdField> changes, int expectedCount) 
 			where TDocument : AbstractMongoEntityWithId<TIdField>
 		{
-			Assert.AreEqual(expectedCount, changes.Inserts.Count());
+			Assert.That(changes.Inserts.Count(), Is.EqualTo(expectedCount));
 		}
 
 		public static void AssertUpdateCount<TDocument, TIdField>(this MongoChangeSet<TDocument, TIdField> changes, int expectedCount) 
 			where TDocument : AbstractMongoEntityWithId<TIdField>
 		{
-			Assert.AreEqual(expectedCount, changes.Updates.Count());
+			Assert.That(changes.Updates.Count(), Is.EqualTo(expectedCount));
 		}
 
 		public static void AssertDeleteCount<TDocument, TIdField>(this MongoChangeSet<TDocument, TIdField> changes, int expectedCount) 
 			where TDocument : AbstractMongoEntityWithId<TIdField>
 		{
-			Assert.AreEqual(expectedCount, changes.Deletes.Count());
+			Assert.That(changes.Deletes.Count(), Is.EqualTo(expectedCount));
 		}
 
 		//public static void AssertIsWriteType<T>(this WriteModel<T> change, WriteModelType expectedWriteType)

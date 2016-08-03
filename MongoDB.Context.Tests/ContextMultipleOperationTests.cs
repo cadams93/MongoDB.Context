@@ -7,10 +7,18 @@ namespace MongoDB.Context.Tests
 	[TestFixture]
 	public class ContextMultipleOperationTests : ContextTestBase
 	{
+		private TestEntity[] _TestEntities;
+
+		[SetUp]
+		public void Setup()
+		{
+			_TestEntities = GetTestEntities();
+		}
+
 		[Test]
 		public void Should_OneDelete_WhenEntityDeletedAndThenModified()
 		{
-			using (var ctx = GetMongoContext())
+			using (var ctx = new MockMongoContext(_TestEntities))
 			{
 				var entity = ctx.TestEntities.Find().First();
 				ctx.TestEntities.DeleteOnSubmit(entity);
@@ -25,7 +33,7 @@ namespace MongoDB.Context.Tests
 		[Test]
 		public void Should_OneDelete_WhenEntityModifiedAndThenDeleted()
 		{
-			using (var ctx = GetMongoContext())
+			using (var ctx = new MockMongoContext(_TestEntities))
 			{
 				var entity = ctx.TestEntities.Find().First();
 				entity.String = "NEW VALUE";
@@ -40,7 +48,7 @@ namespace MongoDB.Context.Tests
 		[Test]
 		public void Should_OneInsert_WhenEntityInsertedAndThenModified()
 		{
-			using (var ctx = GetMongoContext())
+			using (var ctx = new MockMongoContext(_TestEntities))
 			{
 				var entity = new TestEntity
 				{
@@ -59,7 +67,7 @@ namespace MongoDB.Context.Tests
 		[Test]
 		public void Should_OneInsert_WhenEntityModifiedAndThenInserted()
 		{
-			using (var ctx = GetMongoContext())
+			using (var ctx = new MockMongoContext(_TestEntities))
 			{
 				var entity = new TestEntity
 				{
@@ -78,7 +86,7 @@ namespace MongoDB.Context.Tests
 		[Test]
 		public void Should_NoChange_WhenEntityInsertedAndThenDeleted()
 		{
-			using (var ctx = GetMongoContext())
+			using (var ctx = new MockMongoContext(_TestEntities))
 			{
 				var entity = new TestEntity
 				{
@@ -97,7 +105,7 @@ namespace MongoDB.Context.Tests
 		[Test]
 		public void Should_NoChange_WhenEntityDeletedAndThenInserted()
 		{
-			using (var ctx = GetMongoContext())
+			using (var ctx = new MockMongoContext(_TestEntities))
 			{
 				var entity = ctx.TestEntities.Find().First();
 				ctx.TestEntities.DeleteOnSubmit(entity);
@@ -112,7 +120,7 @@ namespace MongoDB.Context.Tests
 		[Test]
 		public void Should_OneChange_WhenEntityDeletedAndThenInsertedAndThenModified()
 		{
-			using (var ctx = GetMongoContext())
+			using (var ctx = new MockMongoContext(_TestEntities))
 			{
 				var entity = ctx.TestEntities.Find().First();
 				ctx.TestEntities.DeleteOnSubmit(entity);
@@ -123,20 +131,13 @@ namespace MongoDB.Context.Tests
 
 				var changes = ctx.TestEntities.GetChanges();
 				changes.AssertUpdateCount(1);
-
-				//var updateModel = (UpdateOneModel<TestEntity>)change;
-				//updateModel.AssertIsOperator(OperatorType.Set);
-				//updateModel.AssertUpdateDocumentDefinition(new BsonDocument("$set", new BsonDocument(new[]
-				//{
-				//	new BsonElement("String", "NEW VALUE")
-				//})));
 			}
 		}
 
 		[Test]
 		public void Should_OneChange_WhenEntityDeletedAndThenModifiedAndThenInserted()
 		{
-			using (var ctx = GetMongoContext())
+			using (var ctx = new MockMongoContext(_TestEntities))
 			{
 				var entity = ctx.TestEntities.Find().First();
 				ctx.TestEntities.DeleteOnSubmit(entity);
@@ -147,20 +148,13 @@ namespace MongoDB.Context.Tests
 
 				var changes = ctx.TestEntities.GetChanges();
 				changes.AssertUpdateCount(1);
-
-				//var updateModel = (UpdateOneModel<TestEntity>)change;
-				//updateModel.AssertIsOperator(OperatorType.Set);
-				//updateModel.AssertUpdateDocumentDefinition(new BsonDocument("$set", new BsonDocument(new[]
-				//{
-				//	new BsonElement("String", "NEW VALUE")
-				//})));
 			}
 		}
 
 		[Test]
 		public void Should_NoChange_WhenEntityDeletedAndThenModifiedAndThenInsertedAndThenModifiedBackToOriginal()
 		{
-			using (var ctx = GetMongoContext())
+			using (var ctx = new MockMongoContext(_TestEntities))
 			{
 				var entity = ctx.TestEntities.Find().First();
 				ctx.TestEntities.DeleteOnSubmit(entity);
@@ -179,7 +173,7 @@ namespace MongoDB.Context.Tests
 		[Test]
 		public void Should_NoChange_WhenEntityDeletedAndThenInsertedTwice()
 		{
-			using (var ctx = GetMongoContext())
+			using (var ctx = new MockMongoContext(_TestEntities))
 			{
 				var entity = ctx.TestEntities.Find().First();
 				ctx.TestEntities.DeleteOnSubmit(entity);
@@ -195,7 +189,7 @@ namespace MongoDB.Context.Tests
 		[Test]
 		public void Should_OneUpdate_WhenEntityDeletedAndThenInsertedAndThenModifiedAndThenDeletedAndThenInserted()
 		{
-			using (var ctx = GetMongoContext())
+			using (var ctx = new MockMongoContext(_TestEntities))
 			{
 				var entity = ctx.TestEntities.Find().First();
 				ctx.TestEntities.DeleteOnSubmit(entity);
@@ -208,20 +202,13 @@ namespace MongoDB.Context.Tests
 
 				var changes = ctx.TestEntities.GetChanges();
 				changes.AssertUpdateCount(1);
-
-				//var updateModel = (UpdateOneModel<TestEntity>)change;
-				//updateModel.AssertIsOperator(OperatorType.Set);
-				//updateModel.AssertUpdateDocumentDefinition(new BsonDocument("$set", new BsonDocument(new[]
-				//{
-				//	new BsonElement("String", "NEW VALUE")
-				//})));
 			}
 		}
 
 		[Test]
 		public void Should_Exception_WhenEntityInsertedWhenAlreadyExists()
 		{
-			using (var ctx = GetMongoContext())
+			using (var ctx = new MockMongoContext(_TestEntities))
 			{
 				var entity = ctx.TestEntities.Find().First();
 
@@ -233,7 +220,7 @@ namespace MongoDB.Context.Tests
 		[Test]
 		public void Should_Exception_WhenEntityDeletedTwice()
 		{
-			using (var ctx = GetMongoContext())
+			using (var ctx = new MockMongoContext(_TestEntities))
 			{
 				var entity = ctx.TestEntities.Find().First();
 				ctx.TestEntities.DeleteOnSubmit(entity);

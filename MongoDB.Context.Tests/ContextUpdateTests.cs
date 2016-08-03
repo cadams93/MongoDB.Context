@@ -6,10 +6,18 @@ namespace MongoDB.Context.Tests
 	[TestFixture]
 	public class ContextUpdateTests : ContextTestBase
 	{
+		private TestEntity[] _TestEntities;
+
+		[SetUp]
+		public void Setup()
+		{
+			_TestEntities = GetTestEntities();
+		}
+
 		[Test]
 		public void Should_NoUpdate_WhenNoChange()
 		{
-			using (var ctx = GetMongoContext())
+			using (var ctx = new MockMongoContext(_TestEntities))
 			{
 				var changes = ctx.TestEntities.GetChanges();
 				changes.AssertNoChange();
@@ -19,27 +27,20 @@ namespace MongoDB.Context.Tests
 		[Test]
 		public void Should_OneSet_WhenOneRootDocumentFieldChanged()
 		{
-			using (var ctx = GetMongoContext())
+			using (var ctx = new MockMongoContext(_TestEntities))
 			{
 				var entity = ctx.TestEntities.Find().First();
 				entity.String = "NEW VALUE";
 
 				var changes = ctx.TestEntities.GetChanges();
 				changes.AssertUpdateCount(1);
-
-				//var updateModel = (UpdateOneModel<TestEntity>) change;
-				//updateModel.AssertIsOperator(OperatorType.Set);
-				//updateModel.AssertUpdateDocumentDefinition(new BsonDocument("$set", new BsonDocument(new[]
-				//{
-				//	new BsonElement("String", "NEW VALUE")
-				//})));
 			}
 		}
 
 		[Test]
 		public void Should_OneSet_WhenTwoRootDocumentFieldsChanged()
 		{
-			using (var ctx = GetMongoContext())
+			using (var ctx = new MockMongoContext(_TestEntities))
 			{
 				var entity = ctx.TestEntities.Find().First();
 				entity.String = "NEW VALUE";
@@ -47,21 +48,13 @@ namespace MongoDB.Context.Tests
 
 				var changes = ctx.TestEntities.GetChanges();
 				changes.AssertUpdateCount(1);
-
-				//var updateModel = (UpdateOneModel<TestEntity>) change;
-				//updateModel.AssertIsOperator(OperatorType.Set);
-				//updateModel.AssertUpdateDocumentDefinition(new BsonDocument("$set", new BsonDocument(new[]
-				//{
-				//	new BsonElement("String", "NEW VALUE"), 
-				//	new BsonElement("Enum", EnumTest.Value1)
-				//})));
 			}
 		}
 
 		[Test]
 		public void Should_OneSet_WhenOneRootDocumentFieldIsChangedTwice()
 		{
-			using (var ctx = GetMongoContext())
+			using (var ctx = new MockMongoContext(_TestEntities))
 			{
 				var entity = ctx.TestEntities.Find().First();
 				entity.String = "NEW VALUE";
@@ -69,20 +62,13 @@ namespace MongoDB.Context.Tests
 
 				var changes = ctx.TestEntities.GetChanges();
 				changes.AssertUpdateCount(1);
-
-				//var updateModel = (UpdateOneModel<TestEntity>) change;
-				//updateModel.AssertIsOperator(OperatorType.Set);
-				//updateModel.AssertUpdateDocumentDefinition(new BsonDocument("$set", new BsonDocument(new[]
-				//{
-				//	new BsonElement("String", "NEW VALUE 2")
-				//})));
 			}
 		}
 
 		[Test]
 		public void Should_NoUpdate_WhenOneRootDocumentFieldIsChangedAndThenChangedBack()
 		{
-			using (var ctx = GetMongoContext())
+			using (var ctx = new MockMongoContext(_TestEntities))
 			{
 				var entity = ctx.TestEntities.Find().First();
 				entity.String = "NEW VALUE";
@@ -96,7 +82,7 @@ namespace MongoDB.Context.Tests
 		[Test]
 		public void Should_OnePush_WhenAnElementIsAddedToAnArrayDocumentField()
 		{
-			using (var ctx = GetMongoContext())
+			using (var ctx = new MockMongoContext(_TestEntities))
 			{
 				var entity = ctx.TestEntities.Find().First();
 				entity.StringArray = new[] { "OLD VALUE A1", "OLD VALUE A2", "NEW VALUE" };
@@ -109,7 +95,7 @@ namespace MongoDB.Context.Tests
 		[Test]
 		public void Should_OnePull_WhenAnElementIsRemovedFromAnArrayDocumentField()
 		{
-			using (var ctx = GetMongoContext())
+			using (var ctx = new MockMongoContext(_TestEntities))
 			{
 				var entity = ctx.TestEntities.Find().First();
 				entity.StringArray = new[] { "OLD VALUE A1" };
@@ -122,7 +108,7 @@ namespace MongoDB.Context.Tests
 		[Test]
 		public void Should_NoUpdate_WhenOneArrayFieldIsChangedAndThenChangedBack()
 		{
-			using (var ctx = GetMongoContext())
+			using (var ctx = new MockMongoContext(_TestEntities))
 			{
 				var entity = ctx.TestEntities.Find().First();
 				entity.StringArray = new  [] { "NEW VALUE" };
@@ -136,48 +122,33 @@ namespace MongoDB.Context.Tests
 		[Test]
 		public void Should_OneUpdate_WhenOneSubDocumentFieldIsChanged()
 		{
-			using (var ctx = GetMongoContext())
+			using (var ctx = new MockMongoContext(_TestEntities))
 			{
 				var entity = ctx.TestEntities.Find().First();
 				entity.SubDocument = new SubDocument { String = "NEW SUB DOCUMENT" };
 
 				var changes = ctx.TestEntities.GetChanges();
 				changes.AssertUpdateCount(1);
-
-				//var updateModel = (UpdateOneModel<TestEntity>)change;
-				//updateModel.AssertIsOperator(OperatorType.Set);
-				//updateModel.AssertUpdateDocumentDefinition(new BsonDocument("$set", new BsonDocument(new []
-				//{
-				//	new BsonElement("SubDocument.String", "NEW SUB DOCUMENT")
-				//})));
 			}
 		}
 
 		[Test]
 		public void Should_OneUpdate_WhenTwoSubDocumentFieldsAreChanged()
 		{
-			using (var ctx = GetMongoContext())
+			using (var ctx = new MockMongoContext(_TestEntities))
 			{
 				var entity = ctx.TestEntities.Find().First();
 				entity.SubDocument = new SubDocument { String = "NEW SUB DOCUMENT", Integer = 10 };
 
 				var changes = ctx.TestEntities.GetChanges();
 				changes.AssertUpdateCount(1);
-
-				//var updateModel = (UpdateOneModel<TestEntity>)change;
-				//updateModel.AssertIsOperator(OperatorType.Set);
-				//updateModel.AssertUpdateDocumentDefinition(new BsonDocument("$set", new BsonDocument(new []
-				//{
-				//	new BsonElement("SubDocument.String", "NEW SUB DOCUMENT"), 
-				//	new BsonElement("SubDocument.Integer", 10)
-				//})));
 			}
 		}
 
 		[Test]
 		public void Should_NoUpdate_WhenOneSubDocumentFieldIsChangedAndThenChangedBack()
 		{
-			using (var ctx = GetMongoContext())
+			using (var ctx = new MockMongoContext(_TestEntities))
 			{
 				var entity = ctx.TestEntities.Find().First();
 				entity.SubDocument = new SubDocument { String = "NEW SUB DOCUMENT"};
@@ -191,7 +162,7 @@ namespace MongoDB.Context.Tests
 		[Test]
 		public void Should_OneUpdate_WhenOneRootDocumentFieldAndOneSubDocumentFieldIsChanged()
 		{
-			using (var ctx = GetMongoContext())
+			using (var ctx = new MockMongoContext(_TestEntities))
 			{
 				var entity = ctx.TestEntities.Find().First();
 				entity.String = "NEW VALUE";
@@ -199,21 +170,13 @@ namespace MongoDB.Context.Tests
 
 				var changes = ctx.TestEntities.GetChanges();
 				changes.AssertUpdateCount(1);
-
-				//var updateModel = (UpdateOneModel<TestEntity>)change;
-				//updateModel.AssertIsOperator(OperatorType.Set);
-				//updateModel.AssertUpdateDocumentDefinition(new BsonDocument("$set", new BsonDocument(new[]
-				//{
-				//	new BsonElement("String", "NEW VALUE"), 
-				//	new BsonElement("SubDocument.String", "NEW SUB DOCUMENT")
-				//})));
 			}
 		}
 
 		[Test]
 		public void Should_OneUpdate_WhenOneRootDocumentFieldAndTwoSubDocumentFieldsAreChanged()
 		{
-			using (var ctx = GetMongoContext())
+			using (var ctx = new MockMongoContext(_TestEntities))
 			{
 				var entity = ctx.TestEntities.Find().First();
 				entity.String = "NEW VALUE";
@@ -221,37 +184,19 @@ namespace MongoDB.Context.Tests
 
 				var changes = ctx.TestEntities.GetChanges();
 				changes.AssertUpdateCount(1);
-
-				//var updateModel = (UpdateOneModel<TestEntity>)change;
-				//updateModel.AssertIsOperator(OperatorType.Set);
-				//updateModel.AssertUpdateDocumentDefinition(new BsonDocument("$set", new BsonDocument(new[]
-				//{
-				//	new BsonElement("String", "NEW VALUE"), 
-				//	new BsonElement("SubDocument.String", "NEW SUB DOCUMENT"), 
-				//	new BsonElement("SubDocument.Integer", 10)
-				//})));
 			}
 		}
 
 		[Test]
 		public void Should_OneUpdate_WhenArrayDocumentItemModified()
 		{
-			using (var ctx = GetMongoContext())
+			using (var ctx = new MockMongoContext(_TestEntities))
 			{
 				var entity = ctx.TestEntities.Find().First();
 				entity.SimpleArray[0].Integer = 10;
 
 				var changes = ctx.TestEntities.GetChanges();
 				changes.AssertUpdateCount(1);
-
-				//var updateModel = (UpdateOneModel<TestEntity>)change;
-				//updateModel.AssertIsOperator(OperatorType.Set);
-				//updateModel.AssertUpdateDocumentDefinition(new BsonDocument("$set", new BsonDocument(new[]
-				//{
-				//	new BsonElement("String", "NEW VALUE"), 
-				//	new BsonElement("SubDocument.String", "NEW SUB DOCUMENT"), 
-				//	new BsonElement("SubDocument.Integer", 10)
-				//})));
 			}
 		}
 	}
