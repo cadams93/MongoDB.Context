@@ -1,0 +1,8 @@
+language: csharp
+solution: MongoDB.Context.sln
+install:
+  - nuget restore MongoDB.Context.sln
+  - nuget install NUnit.Runners -Version 2.6.4 -OutputDirectory testrunner
+script:
+  - xbuild /p:Configuration=Release MongoDB.Context.sln
+  - mono ./testrunner/NUnit.Runners.2.6.4/tools/nunit-console.exe ./MongoDB.Context.Tests/bin/Release/MongoDB.Context.Tests.dll
