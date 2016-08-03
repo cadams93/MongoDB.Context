@@ -8,7 +8,8 @@ namespace MongoDB.Context
 	public enum EnumTest
 	{
 		Value1 = 1,
-		Value2 = 2
+		Value2 = 2,
+		Value3 = 3
 	}
 
 	public class TestEntity : AbstractMongoEntityWithId<ObjectId>

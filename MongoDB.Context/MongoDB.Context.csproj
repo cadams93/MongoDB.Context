@@ -70,6 +70,9 @@
     <Compile Include="IMongoTrackedCollection.cs" />
     <Compile Include="Lcs\LcsAlgorithm.cs" />
     <Compile Include="Lcs\LcsResult.cs" />
+    <Compile Include="Locking\MongoLockRequest.cs" />
+    <Compile Include="Locking\MongoLock.cs" />
+    <Compile Include="Locking\MongoLockProvider.cs" />
     <Compile Include="MongoChangeSet.cs" />
     <Compile Include="MongoContext.cs" />
     <Compile Include="MongoTrackedCollection.cs" />

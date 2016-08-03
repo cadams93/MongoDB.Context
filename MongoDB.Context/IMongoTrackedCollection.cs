@@ -13,5 +13,6 @@ namespace MongoDB.Context
 
 		IEnumerable<T> Find(Expression<Func<T, bool>> pred = null);
 		MongoChangeSet<T, TIdField> GetChanges();
+		void SubmitChanges();
 	}
 }

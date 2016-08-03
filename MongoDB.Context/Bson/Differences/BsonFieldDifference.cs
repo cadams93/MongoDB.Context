@@ -12,7 +12,7 @@ namespace MongoDB.Context.Bson.Differences
 		private readonly BsonValue _OldValue;
 		private readonly BsonValue _NewValue;
 
-		public BsonFieldDifference(object[] fieldPath, BsonValue oldValue, BsonValue newValue)
+		public BsonFieldDifference(string rootDocumentField, object[] fieldPath, BsonValue oldValue, BsonValue newValue) : base(rootDocumentField)
 		{
 			_FieldPath = fieldPath;
 			_OldValue = oldValue;

@@ -14,6 +14,8 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = ".nuget", ".nuget", "{91D8F1
 		.nuget\NuGet.targets = .nuget\NuGet.targets
 	EndProjectSection
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MongoDB.Context.Client", "MongoDB.Context.Client\MongoDB.Context.Client.csproj", "{5033D398-D014-4A33-A784-D5FE84D1155D}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -28,6 +30,10 @@ Global
 		{BDB93B3F-9566-4ADF-B823-4F45A5612034}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{BDB93B3F-9566-4ADF-B823-4F45A5612034}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{BDB93B3F-9566-4ADF-B823-4F45A5612034}.Release|Any CPU.Build.0 = Release|Any CPU
+		{5033D398-D014-4A33-A784-D5FE84D1155D}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{5033D398-D014-4A33-A784-D5FE84D1155D}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{5033D398-D014-4A33-A784-D5FE84D1155D}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{5033D398-D014-4A33-A784-D5FE84D1155D}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

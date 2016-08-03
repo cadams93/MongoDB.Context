@@ -7,10 +7,12 @@ namespace MongoDB.Context.Bson
 		where T : BsonValue
 		where TDocument : AbstractMongoEntityWithId<TIdField>
 	{
+		protected readonly string RootDocumentField;
 		protected readonly object[] ElementPath;
 
-		protected BsonComparer(object[] elementPath)
+		protected BsonComparer(string rootDocumentField, object[] elementPath)
 		{
+			RootDocumentField = rootDocumentField;
 			ElementPath = elementPath;
 		}
 

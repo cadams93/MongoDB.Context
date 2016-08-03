@@ -24,6 +24,11 @@ namespace MongoDB.Context
 
 		#endregion
 
+		public void SubmitChanges()
+		{
+			_TestEntities.SubmitChanges();
+		}
+
 		public void Dispose()
 		{
 			_TestEntities = null;

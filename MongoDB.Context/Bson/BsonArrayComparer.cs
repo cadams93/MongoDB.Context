@@ -9,8 +9,8 @@ namespace MongoDB.Context.Bson
 		: BsonComparer<BsonArray, TDocument, TIdField>
 		where TDocument : AbstractMongoEntityWithId<TIdField>
 	{
-		public BsonArrayComparer() : base(new object[] { }) { }
-		public BsonArrayComparer(object[] elementPath) : base(elementPath) { }
+		public BsonArrayComparer(string rootDocumentField) : this(rootDocumentField, new object[] { }) { }
+		public BsonArrayComparer(string rootDocumentField, object[] elementPath) : base(rootDocumentField, elementPath) { }
 
 		public override BsonDifference<TDocument, TIdField>[] GetDifferences(BsonArray left, BsonArray right)
 		{
@@ -36,7 +36,7 @@ namespace MongoDB.Context.Bson
 			if (head + tail == left.Count())
 			{
 				for (var i = head; i < right.Count() - tail; ++i)
-					differences.Add(new BsonArrayItemDifference<TDocument, TIdField>(BsonArrayItemDifferenceType.Add, ElementPath, i, right[i]));
+					differences.Add(new BsonArrayItemDifference<TDocument, TIdField>(RootDocumentField, BsonArrayItemDifferenceType.Add, ElementPath, i, right[i]));
 
 				return differences.ToArray();
 			}
@@ -44,7 +44,7 @@ namespace MongoDB.Context.Bson
 			if (head + tail == right.Count())
 			{
 				for (var i = head; i < left.Count() - tail; ++i)
-					differences.Add(new BsonArrayItemDifference<TDocument, TIdField>(BsonArrayItemDifferenceType.Remove, ElementPath, i, left[i]));
+					differences.Add(new BsonArrayItemDifference<TDocument, TIdField>(RootDocumentField, BsonArrayItemDifferenceType.Remove, ElementPath, i, left[i]));
 
 				return differences.ToArray();
 			}
@@ -57,7 +57,7 @@ namespace MongoDB.Context.Bson
 			for (var i = head; i < left.Count() - tail; ++i)
 			{
 				if (!lcs.LeftIndices.Contains(i))
-					differences.Add(new BsonArrayItemDifference<TDocument, TIdField>(BsonArrayItemDifferenceType.Remove, ElementPath, i, left[i]));
+					differences.Add(new BsonArrayItemDifference<TDocument, TIdField>(RootDocumentField, BsonArrayItemDifferenceType.Remove, ElementPath, i, left[i]));
 			}
 
 			for (var i = head; i < right.Count() - tail; i++)
@@ -68,12 +68,12 @@ namespace MongoDB.Context.Bson
 					var leftIndex = lcs.LeftIndices[i] + head;
 					var rightIndex = lcs.RightIndices[i] + head;
 
-					var itemDiff = new BsonFieldComparer<TDocument, TIdField>(newElementPath);
+					var itemDiff = new BsonFieldComparer<TDocument, TIdField>(RootDocumentField, newElementPath);
 					differences.AddRange(itemDiff.GetDifferences(left[leftIndex], right[rightIndex]));
 				}
 				else
 				{
-					differences.Add(new BsonArrayItemDifference<TDocument, TIdField>(BsonArrayItemDifferenceType.Add, ElementPath, i, right[i]));
+					differences.Add(new BsonArrayItemDifference<TDocument, TIdField>(RootDocumentField, BsonArrayItemDifferenceType.Add, ElementPath, i, right[i]));
 				}
 			}
 
