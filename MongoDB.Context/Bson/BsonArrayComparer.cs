@@ -9,8 +9,8 @@ namespace MongoDB.Context.Bson
 		: BsonComparer<BsonArray, TDocument, TIdField>
 		where TDocument : AbstractMongoEntityWithId<TIdField>
 	{
-		public BsonArrayComparer(string rootDocumentField) : this(rootDocumentField, new object[] { }) { }
-		public BsonArrayComparer(string rootDocumentField, object[] elementPath) : base(rootDocumentField, elementPath) { }
+		public BsonArrayComparer() : this(new object[] { }) { }
+		public BsonArrayComparer(object[] elementPath) : base(elementPath) { }
 
 		public override BsonDifference<TDocument, TIdField>[] GetDifferences(BsonArray left, BsonArray right)
 		{
@@ -36,7 +36,10 @@ namespace MongoDB.Context.Bson
 			if (head + tail == left.Count())
 			{
 				for (var i = head; i < right.Count() - tail; ++i)
-					differences.Add(new BsonArrayItemDifference<TDocument, TIdField>(RootDocumentField, BsonArrayItemDifferenceType.Add, ElementPath, i, right[i]));
+				{
+					var newElementPath = ElementPath.Concat(new object[] { i }).ToArray();
+					differences.Add(new BsonArrayItemDifference<TDocument, TIdField>(BsonArrayItemDifferenceType.Add, newElementPath, right[i]));
+				}
 
 				return differences.ToArray();
 			}
@@ -44,7 +47,10 @@ namespace MongoDB.Context.Bson
 			if (head + tail == right.Count())
 			{
 				for (var i = head; i < left.Count() - tail; ++i)
-					differences.Add(new BsonArrayItemDifference<TDocument, TIdField>(RootDocumentField, BsonArrayItemDifferenceType.Remove, ElementPath, i, left[i]));
+				{
+					var newElementPath = ElementPath.Concat(new object[] { i }).ToArray();
+					differences.Add(new BsonArrayItemDifference<TDocument, TIdField>(BsonArrayItemDifferenceType.Remove, newElementPath, left[i]));
+				}
 
 				return differences.ToArray();
 			}
@@ -57,23 +63,28 @@ namespace MongoDB.Context.Bson
 			for (var i = head; i < left.Count() - tail; ++i)
 			{
 				if (!lcs.LeftIndices.Contains(i))
-					differences.Add(new BsonArrayItemDifference<TDocument, TIdField>(RootDocumentField, BsonArrayItemDifferenceType.Remove, ElementPath, i, left[i]));
+				{
+					var newElementPath = ElementPath.Concat(new object[] { i }).ToArray();
+					differences.Add(new BsonArrayItemDifference<TDocument, TIdField>(BsonArrayItemDifferenceType.Remove, newElementPath, left[i]));
+				}
 			}
 
-			for (var i = head; i < right.Count() - tail; i++)
+			for (var i = head; i < right.Count() - tail; ++i)
 			{
 				var newElementPath = ElementPath.Concat(new object[] { i }).ToArray();
-				if (lcs.RightIndices.Contains(i))
+				if (lcs.RightIndices.Contains(i - head))
 				{
-					var leftIndex = lcs.LeftIndices[i] + head;
-					var rightIndex = lcs.RightIndices[i] + head;
+					var rightIndexOf = lcs.RightIndices.IndexOf(i - head);
 
-					var itemDiff = new BsonFieldComparer<TDocument, TIdField>(RootDocumentField, newElementPath);
+					var leftIndex = lcs.LeftIndices[rightIndexOf] + head;
+					var rightIndex = lcs.RightIndices[rightIndexOf] + head;
+
+					var itemDiff = new BsonFieldComparer<TDocument, TIdField>(newElementPath);
 					differences.AddRange(itemDiff.GetDifferences(left[leftIndex], right[rightIndex]));
 				}
 				else
 				{
-					differences.Add(new BsonArrayItemDifference<TDocument, TIdField>(RootDocumentField, BsonArrayItemDifferenceType.Add, ElementPath, i, right[i]));
+					differences.Add(new BsonArrayItemDifference<TDocument, TIdField>(BsonArrayItemDifferenceType.Add, newElementPath, right[i]));
 				}
 			}
 

@@ -1,17 +1,13 @@
-﻿using MongoDB.Driver;
-
-namespace MongoDB.Context.Bson.Differences
+﻿namespace MongoDB.Context.Bson.Differences
 {
 	public abstract class BsonDifference<TDocument, TIdField>
 		   where TDocument : AbstractMongoEntityWithId<TIdField>
 	{
-		public string RootDocumentField { get; private set; }
+		public object[] FieldPath { get; private set; }
 
-		protected BsonDifference(string rootDocumentField)
+		protected BsonDifference(object[] fieldPath)
 		{
-			RootDocumentField = rootDocumentField;
+			FieldPath = fieldPath;
 		}
-
-		public abstract UpdateDefinition<TDocument> GetMongoUpdate();
 	}
 }

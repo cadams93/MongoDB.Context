@@ -45,10 +45,8 @@ namespace MongoDB.Context.Lcs
 		protected virtual LcsResult<T> Backtrack(int[,] lcs, T[] left, T[] right, int leftIdx, int rightIdx)
 		{
 			// Reduce the complexity of this method (recursive) by converting to tail loop
-			while (true)
+			while (leftIdx != 0 && rightIdx != 0)
 			{
-				if (leftIdx == 0 || rightIdx == 0) return new LcsResult<T>();
-
 				if (EqualityComparer<T>.Default.Equals(left[leftIdx - 1], right[rightIdx - 1]))
 				{
 					var subsequence = Backtrack(lcs, left, right, leftIdx - 1, rightIdx - 1);
@@ -63,6 +61,8 @@ namespace MongoDB.Context.Lcs
 				else
 					leftIdx--;
 			}
+
+			return new LcsResult<T>();
 		}
 	}
 }

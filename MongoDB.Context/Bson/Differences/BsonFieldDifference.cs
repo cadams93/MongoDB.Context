@@ -1,6 +1,4 @@
-﻿using System.Linq;
-using MongoDB.Bson;
-using MongoDB.Driver;
+﻿using MongoDB.Bson;
 
 namespace MongoDB.Context.Bson.Differences
 {
@@ -8,30 +6,13 @@ namespace MongoDB.Context.Bson.Differences
 		: BsonDifference<TDocument, TIdField>
 		where TDocument : AbstractMongoEntityWithId<TIdField>
 	{
-		private readonly object[] _FieldPath;
-		private readonly BsonValue _OldValue;
-		private readonly BsonValue _NewValue;
+		public BsonValue OldValue { get; private set; }
+		public BsonValue NewValue { get; private set; }
 
-		public BsonFieldDifference(string rootDocumentField, object[] fieldPath, BsonValue oldValue, BsonValue newValue) : base(rootDocumentField)
+		public BsonFieldDifference(object[] fieldPath, BsonValue oldValue, BsonValue newValue) : base(fieldPath)
 		{
-			_FieldPath = fieldPath;
-			_OldValue = oldValue;
-			_NewValue = newValue;
-		}
-
-		public override UpdateDefinition<TDocument> GetMongoUpdate()
-		{
-			// Both non-existent, OR both the same value - no change
-			if ((_OldValue == null && _NewValue == null) || (_OldValue != null && _OldValue.Equals(_NewValue)))
-				return null;
-
-			// If we are unsetting a field
-			if (_OldValue != null && _NewValue == null)
-				return Builders<TDocument>.Update
-					.Unset(string.Join(".", _FieldPath.Select(z => z.ToString())));
-
-			return Builders<TDocument>.Update
-				.Set(string.Join(".", _FieldPath.Select(z => z.ToString())), _NewValue);
+			OldValue = oldValue;
+			NewValue = newValue;
 		}
 	}
 }

@@ -10,8 +10,8 @@ namespace MongoDB.Context.Bson
 		: BsonComparer<BsonValue, TDocument, TIdField>
 		where TDocument : AbstractMongoEntityWithId<TIdField>
 	{
-		public BsonFieldComparer(string rootDocumentField) : this(rootDocumentField, new object[] { }) { }
-		public BsonFieldComparer(string rootDocumentField, object[] elementPath) : base(rootDocumentField, elementPath) { }
+		public BsonFieldComparer() : this(new object[] { }) { }
+		public BsonFieldComparer(object[] elementPath) : base(elementPath) { }
 
 		public override BsonDifference<TDocument, TIdField>[] GetDifferences(BsonValue left, BsonValue right)
 		{
@@ -23,7 +23,7 @@ namespace MongoDB.Context.Bson
 			// If either side is null: simple change
 			if (left == null || right == null)
 			{
-				differences.Add(new BsonFieldDifference<TDocument, TIdField>(RootDocumentField, ElementPath, left, right));
+				differences.Add(new BsonFieldDifference<TDocument, TIdField>(ElementPath, left, right));
 				return differences.ToArray();
 			}
 
@@ -37,19 +37,19 @@ namespace MongoDB.Context.Bson
 			// Handle arrays: potential indirect recurse
 			if (right.IsBsonArray)
 			{
-				var arrayComparer = new BsonArrayComparer<TDocument, TIdField>(RootDocumentField, ElementPath);
+				var arrayComparer = new BsonArrayComparer<TDocument, TIdField>(ElementPath);
 				return arrayComparer.GetDifferences(left.AsBsonArray, right.AsBsonArray);
 			}
 
 			// Handle a sub-document: potential indirect recurse
 			if (right.IsBsonDocument)
 			{
-				var subDocumentComparer = new BsonDocumentComparer<TDocument, TIdField>(RootDocumentField, ElementPath);
+				var subDocumentComparer = new BsonDocumentComparer<TDocument, TIdField>(ElementPath);
 				return subDocumentComparer.GetDifferences(left.AsBsonDocument, right.AsBsonDocument);
 			}
 
 			// Else: Simple change
-			differences.Add(new BsonFieldDifference<TDocument, TIdField>(RootDocumentField, ElementPath, left, right));
+			differences.Add(new BsonFieldDifference<TDocument, TIdField>(ElementPath, left, right));
 
 			return differences.ToArray();
 		}

@@ -7,10 +7,8 @@ namespace MongoDB.Context.Bson
 	{
 		protected override LcsResult<BsonValue> Backtrack(int[,] lcs, BsonValue[] left, BsonValue[] right, int leftIdx, int rightIdx)
 		{
-			while (true)
+			while (leftIdx != 0 && rightIdx != 0)
 			{
-				if (leftIdx == 0 || rightIdx == 0) return new LcsResult<BsonValue>();
-
 				var leftItem = left[leftIdx - 1];
 				var rightItem = right[rightIdx - 1];
 
@@ -30,6 +28,8 @@ namespace MongoDB.Context.Bson
 				else
 					leftIdx--;
 			}
+
+			return new LcsResult<BsonValue>();
 		}
 	}
 }

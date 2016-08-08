@@ -9,15 +9,8 @@ namespace MongoDB.Context.Bson
 		: BsonComparer<BsonDocument, TDocument, TIdField>
 		where TDocument : AbstractMongoEntityWithId<TIdField>
 	{
-		private readonly bool _IsRootDocument = false;
-
-		public BsonDocumentComparer() : this(null, new object[] {})
-		{
-			_IsRootDocument = true;
-		}
-
-		public BsonDocumentComparer(string rootDocumentField) : this(rootDocumentField, new object[] { }) { }
-		public BsonDocumentComparer(string rootDocumentField, object[] elementPath) : base(rootDocumentField, elementPath) { }
+		public BsonDocumentComparer() : this(new object[] {}) { }
+		public BsonDocumentComparer(object[] elementPath) : base(elementPath) { }
 
 		public override BsonDifference<TDocument, TIdField>[] GetDifferences(BsonDocument left, BsonDocument right)
 		{
@@ -29,7 +22,7 @@ namespace MongoDB.Context.Bson
 			{
 				var newElementPath = ElementPath.Concat(new[] { elementToRemove }).ToArray();
 
-				var comparer = new BsonFieldComparer<TDocument, TIdField>(_IsRootDocument ? elementToRemove : RootDocumentField, newElementPath);
+				var comparer = new BsonFieldComparer<TDocument, TIdField>(newElementPath);
 				differences.AddRange(comparer.GetDifferences(left[elementToRemove], null));
 			}
 
@@ -39,7 +32,7 @@ namespace MongoDB.Context.Bson
 				var newElementPath = ElementPath.Concat(new[] { fieldName }).ToArray();
 				var newValue = right[fieldName];
 
-				var comparer = new BsonFieldComparer<TDocument, TIdField>(_IsRootDocument ? fieldName : RootDocumentField, newElementPath);
+				var comparer = new BsonFieldComparer<TDocument, TIdField>(newElementPath);
 				differences.AddRange(comparer.GetDifferences(left.Contains(fieldName) ? left[fieldName] : null, newValue));
 			}
 
