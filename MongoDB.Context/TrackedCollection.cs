@@ -1,21 +1,23 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Collections.ObjectModel;
+using System.Linq;
 
 namespace MongoDB.Context
 {
-	public class TrackedCollection<T, TIdField> where T : AbstractMongoEntityWithId<TIdField>
+	public class TrackedCollection<TDocument, TIdField> where TDocument : AbstractMongoEntityWithId<TIdField>
 	{
-		private class TrackedCollectionById : KeyedCollection<TIdField, TrackedEntity<T, TIdField>>
+		private class TrackedCollectionById : KeyedCollection<TIdField, TrackedEntity<TDocument, TIdField>>
 		{
-			protected override TIdField GetKeyForItem(TrackedEntity<T, TIdField> item)
+			protected override TIdField GetKeyForItem(TrackedEntity<TDocument, TIdField> item)
 			{
 				return item.Entity._Id;
 			}
 		}
 
-		private class TrackedCollectionByEntity : KeyedCollection<T, TrackedEntity<T, TIdField>>
+		private class TrackedCollectionByEntity : KeyedCollection<TDocument, TrackedEntity<TDocument, TIdField>>
 		{
-			protected override T GetKeyForItem(TrackedEntity<T, TIdField> item)
+			protected override TDocument GetKeyForItem(TrackedEntity<TDocument, TIdField> item)
 			{
 				return item.Entity;
 			}
@@ -30,7 +32,7 @@ namespace MongoDB.Context
 			_TrackedCollectionByEntity = new TrackedCollectionByEntity();
 		}
 
-		public bool Contains(T entity)
+		public bool Contains(TDocument entity)
 		{
 			return _TrackedCollectionByEntity.Contains(entity);
 		} 
@@ -40,19 +42,24 @@ namespace MongoDB.Context
 			return _TrackedCollectionById.Contains(id);
 		}
 
-		public TrackedEntity<T, TIdField> this[T entity]
+		public TrackedEntity<TDocument, TIdField> this[TDocument entity]
 		{
 			get { return _TrackedCollectionByEntity.Contains(entity) ? _TrackedCollectionByEntity[entity] : null; }
 		}
 
-		public TrackedEntity<T, TIdField> this[TIdField id]
+		public TrackedEntity<TDocument, TIdField> this[TIdField id]
 		{
 			get { return _TrackedCollectionById.Contains(id) ? _TrackedCollectionById[id] : null; }
 		}
 
-		public void Add(T entity, EntityState state)
+		public IEnumerable<TrackedEntity<TDocument, TIdField>> GetAllTrackedEntities()
 		{
-			var trackedEntity = new TrackedEntity<T, TIdField>(entity, state);
+			return _TrackedCollectionByEntity;
+		}
+
+		public void Attach(TDocument entity, EntityState state)
+		{
+			var trackedEntity = new TrackedEntity<TDocument, TIdField>(entity, state);
 			if (!this.Contains(entity))
 				_TrackedCollectionByEntity.Add(trackedEntity);
 
@@ -60,9 +67,36 @@ namespace MongoDB.Context
 				_TrackedCollectionById.Add(trackedEntity);
 		}
 
-		public IEnumerable<TrackedEntity<T, TIdField>> GetAllTrackedEntities()
+		public void Detatch(TDocument entity)
 		{
-			return _TrackedCollectionByEntity;
+			if (_TrackedCollectionByEntity.Contains(entity))
+				_TrackedCollectionByEntity.Remove(entity);
+
+			if (_TrackedCollectionById.Contains(entity._Id))
+				_TrackedCollectionById.Remove(entity._Id);
+		}
+
+		public void CleanupEntityStateAfterSubmit()
+		{
+			foreach (var trackedEntity in GetAllTrackedEntities().ToArray())
+			{
+				switch (trackedEntity.State)
+				{
+					case EntityState.Added:
+						trackedEntity.ResetOriginalState();
+						trackedEntity.State = EntityState.ReadFromSource;
+						break;
+					case EntityState.Deleted:
+						Detatch(trackedEntity.Entity);
+						break;
+					case EntityState.ReadFromSource:
+					case EntityState.NoActionRequired:
+						trackedEntity.ResetOriginalState();
+						break;
+					default:
+						throw new ArgumentOutOfRangeException();
+				}
+			}
 		}
 	}
 }

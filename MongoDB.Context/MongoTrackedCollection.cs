@@ -49,7 +49,7 @@ namespace MongoDB.Context
 				return;
 			}
 
-			_TrackedCollection.Add(entity, EntityState.Added);
+			_TrackedCollection.Attach(entity, EntityState.Added);
 		}
 
 		public void InsertAllOnSubmit(IEnumerable<TDocument> entities)
@@ -83,7 +83,7 @@ namespace MongoDB.Context
 				return;
 			}
 
-			_TrackedCollection.Add(entity, EntityState.Deleted);
+			_TrackedCollection.Attach(entity, EntityState.Deleted);
 		}
 
 		public void DeleteAllOnSubmit(IEnumerable<TDocument> entities)
@@ -104,13 +104,13 @@ namespace MongoDB.Context
 					yield break;
 				}
 
-				_TrackedCollection.Add(entity, EntityState.ReadFromSource);
+				_TrackedCollection.Attach(entity, EntityState.ReadFromSource);
 
 				yield return entity;
 			}
 		}
 
-		public MongoChangeSet<TDocument, TIdField> GetChanges()
+		public MongoCollectionChangeSet<TDocument, TIdField> GetChanges()
 		{
 			var allTrackedEntities = _TrackedCollection.GetAllTrackedEntities().ToArray();
 
@@ -122,50 +122,76 @@ namespace MongoDB.Context
 				.Where(z => z.Value.Any())
 				.ToDictionary(z => z.Key, z => z.Value.AsEnumerable());
 
-			return new MongoChangeSet<TDocument, TIdField>(inserts, updates, deletes);
+			return new MongoCollectionChangeSet<TDocument, TIdField>(inserts, updates, deletes);
 		}
 
 		public void SubmitChanges()
 		{
-			//var allTrackedEntities = _TrackedCollection.GetAllTrackedEntities().ToArray();
+			var changeSet = GetChanges();
+			var changeFactory = new MongoChangeFactory<TDocument, TIdField>();
 
-			//var inserts = allTrackedEntities.Where(z => z.State == EntityState.Added).ToArray();
-			//var deletes = allTrackedEntities.Where(z => z.State == EntityState.Deleted).ToArray();
+			List<MongoLockRequest<TIdField>> locksRequired;
 
-			//var updates = allTrackedEntities.Where(z => z.State == EntityState.ReadFromSource)
-			//	.ToDictionary(z => z.Entity, z => z.GetDifferences())
-			//	.Where(z => z.Value.Any())
-			//	.ToDictionary(z => z.Key, z => z.Value.AsEnumerable());
+			var changes = changeFactory.GetMongoChangesFromChangeSet(changeSet, out locksRequired);
+			if (!changes.Any()) return;
 
-			//var insertModels = inserts.Select(inserrt => new InsertOneModel<TDocument>(inserrt.Entity)).ToArray();
-			//var deleteModels = deletes.Select(delete => new DeleteOneModel<TDocument>(Builders<TDocument>.Filter.Eq(z => z._Id, delete.Entity._Id))).ToArray();
+			if (locksRequired.Any())
+			{
+				using (var lp = new MongoLockProvider<TIdField>(locksRequired, _Client, "test", "locks"))
+				{
+					var success = lp.TryAcquireAll();
+					if (!success)
+						throw new Exception("Failed to acquire all required locks");
 
-			//var lockRequests = updates.SelectMany(z => z.Value.Select(x => new MongoLockRequest<TIdField> { DocumentId = z.Key._Id, Field = x.RootDocumentField })).ToArray();
+					// Updates requiring locks (plus Inserts and Deletes in same context)
+					SubmitChangesImpl(changes);
+					return;
+				}
+			}
 
-			//var updateModels = updates.Select(update =>
-			//	new UpdateOneModel<TDocument>(
-			//		Builders<TDocument>.Filter.Eq(z => z._Id, update.Key._Id),
-			//		Builders<TDocument>.Update.Combine(update.Value.Select(diff => diff.GetMongoUpdate())))
-			//	)
-			//	.ToArray();
+			// Inserts and Deletes only
+			SubmitChangesImpl(changes);
+		}
 
-			//// TODO: Check results here
-			//if (deleteModels.Any()) _Collection.BulkWrite(deleteModels);
-			//if (insertModels.Any()) _Collection.BulkWrite(insertModels);
+		private void SubmitChangesImpl(IEnumerable<MongoChange<TDocument, TIdField>> changes)
+		{
+			var mongoChanges = changes.ToArray();
 
-			//if (updateModels.Any())
-			//{
-			//	// TODO: More complex locking - handle lock failures
-			//	using (var lp = new MongoLockProvider<TIdField>(_Client, "test", "lock"))
-			//	{
-			//		List<MongoLock<TIdField>> acquiredLocks;
-			//		var success = lp.TryAcquireAll(lockRequests, out acquiredLocks);
-			//		if (success)
-			//		{
-			//			_Collection.BulkWrite(updateModels);
-			//		}
-			//	}
-			//}
+			var deletes = mongoChanges.Where(z => z.Change.ModelType == WriteModelType.DeleteOne).ToArray();
+			if (deletes.Any())
+			{
+				var deleteResults = BulkWriteChanges(deletes);
+			}
+
+			var inserts = mongoChanges.Where(z => z.Change.ModelType == WriteModelType.InsertOne).ToArray();
+			if (inserts.Any())
+			{
+				var insertResults = BulkWriteChanges(inserts);
+			}
+
+			var updates = mongoChanges.Where(z => z.Change.ModelType == WriteModelType.UpdateOne).ToArray();
+			if (updates.Any())
+			{
+				var updateResults = BulkWriteChanges(updates);
+			}
+
+			// Cleanup the state of all of the tracked objects
+			_TrackedCollection.CleanupEntityStateAfterSubmit();
+		}
+
+		private Dictionary<int, BulkWriteResult<TDocument>> BulkWriteChanges(IEnumerable<MongoChange<TDocument, TIdField>> changesForOperation, bool stopOnFailure = true)
+		{
+			var bulkWriteResults = new Dictionary<int, BulkWriteResult<TDocument>>();
+
+			foreach (var mongoChangeGroup in changesForOperation.GroupBy(z => z.ExecutionOrder))
+			{
+				var result = _Collection.BulkWrite(mongoChangeGroup.Select(z => z.Change));
+				bulkWriteResults.Add(mongoChangeGroup.Key, result);
+
+				if (stopOnFailure && result.ProcessedRequests.Count() != result.RequestCount) return bulkWriteResults;
+			}
+
+			return bulkWriteResults;
 		}
 
 		protected virtual IEnumerable<TDocument> RemoteGet(Expression<Func<TDocument, bool>> pred = null)

@@ -9,7 +9,7 @@ namespace MongoDB.Context
 		where TDocument : AbstractMongoEntityWithId<TIdField>
 	{
 		public TDocument Entity { get; private set; }
-		private readonly BsonDocument _OriginalState = null;
+		public BsonDocument OriginalState { get; private set; }
 		
 		public EntityState State { get; set; }
 
@@ -20,7 +20,7 @@ namespace MongoDB.Context
 
 			if (state == EntityState.ReadFromSource)
 			{
-				_OriginalState = entity.ToBsonDocument();
+				OriginalState = entity.ToBsonDocument();
 			}
 		}
 
@@ -34,10 +34,15 @@ namespace MongoDB.Context
 					return null;
 				case EntityState.ReadFromSource:
 					var comparer = new BsonDocumentComparer<TDocument, TIdField>();
-					return comparer.GetDifferences(_OriginalState, this.Entity.ToBsonDocument());
+					return comparer.GetDifferences(OriginalState, this.Entity.ToBsonDocument());
 				default:
 					throw new InvalidOperationException("Entity state invalid");
 			}
+		}
+
+		public void ResetOriginalState()
+		{
+			OriginalState = this.Entity.ToBsonDocument();
 		}
 	}
 }

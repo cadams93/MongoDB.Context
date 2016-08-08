@@ -4,15 +4,16 @@ using System.Linq.Expressions;
 
 namespace MongoDB.Context
 {
-	public interface IMongoTrackedCollection<T, TIdField> where T : AbstractMongoEntityWithId<TIdField>
+	public interface IMongoTrackedCollection<TDocument, TIdField> 
+		where TDocument : AbstractMongoEntityWithId<TIdField>
 	{
-		void InsertOnSubmit(T entity);
-		void InsertAllOnSubmit(IEnumerable<T> entities);
-		void DeleteOnSubmit(T entity);
-		void DeleteAllOnSubmit(IEnumerable<T> entities);
+		void InsertOnSubmit(TDocument entity);
+		void InsertAllOnSubmit(IEnumerable<TDocument> entities);
+		void DeleteOnSubmit(TDocument entity);
+		void DeleteAllOnSubmit(IEnumerable<TDocument> entities);
 
-		IEnumerable<T> Find(Expression<Func<T, bool>> pred = null);
-		MongoChangeSet<T, TIdField> GetChanges();
+		IEnumerable<TDocument> Find(Expression<Func<TDocument, bool>> pred = null);
+		MongoCollectionChangeSet<TDocument, TIdField> GetChanges();
 		void SubmitChanges();
 	}
 }

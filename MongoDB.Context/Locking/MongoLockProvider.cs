@@ -10,19 +10,19 @@ namespace MongoDB.Context.Locking
 		private readonly Guid _ClientId = Guid.NewGuid();
 
 		private readonly IMongoCollection<MongoLock<TIdField>> _Collection;
+		private readonly List<MongoLockRequest<TIdField>> _LockRequests;
 		private readonly List<MongoLock<TIdField>> _LocksAcquired;
 
-		public MongoLockProvider(IMongoClient client, string databaseKey, string collectionKey)
+		public MongoLockProvider(IEnumerable<MongoLockRequest<TIdField>> lockRequests, IMongoClient client, string databaseKey, string collectionKey)
 		{
 			_Collection = client.GetDatabase(databaseKey).GetCollection<MongoLock<TIdField>>(collectionKey);
 			_LocksAcquired = new List<MongoLock<TIdField>>();
+			_LockRequests = lockRequests.ToList();
 		}
 
-		public bool TryAcquireAll(IEnumerable<MongoLockRequest<TIdField>> requests, out List<MongoLock<TIdField>> acquiredLocks)
+		public bool TryAcquireAll()
 		{
-			acquiredLocks = new List<MongoLock<TIdField>>();
-
-			foreach (var request in requests)
+			foreach (var request in _LockRequests)
 			{
 				var dbLock = _Collection.FindOneAndUpdate(
 					Builders<MongoLock<TIdField>>.Filter.And(
@@ -47,19 +47,17 @@ namespace MongoDB.Context.Locking
 					return false;
 				}
 
-				acquiredLocks.Add(dbLock);
+				_LocksAcquired.Add(dbLock);
 			}
-
-			_LocksAcquired.AddRange(acquiredLocks);
 
 			return true;
 		}
 
-		public bool TryAcquireAny(IEnumerable<MongoLockRequest<TIdField>> requests, out List<MongoLock<TIdField>> acquiredLocks)
+		public bool TryAcquireAny(out List<MongoLock<TIdField>> acquiredLocks)
 		{
 			acquiredLocks = new List<MongoLock<TIdField>>();
 
-			foreach (var request in requests)
+			foreach (var request in _LockRequests)
 			{
 				var dbLock = _Collection.FindOneAndUpdate(
 					Builders<MongoLock<TIdField>>.Filter.And(
@@ -80,16 +78,17 @@ namespace MongoDB.Context.Locking
 				// If there was an existing lock, we have failed to acquire this lock
 				if (dbLock.TakenBy != _ClientId) continue;
 
+				_LocksAcquired.Add(dbLock);
 				acquiredLocks.Add(dbLock);
 			}
-
-			_LocksAcquired.AddRange(acquiredLocks);
-
+			
 			return acquiredLocks.Any();
 		}
 
 		private void ReleaseLocks(IEnumerable<MongoLock<TIdField>> locks)
 		{
+			// TODO: Potentially just destroy any locks with this client ID
+
 			foreach (var dbLock in locks)
 			{
 				// Delete each lock if the clientId matches

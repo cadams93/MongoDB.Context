@@ -5,7 +5,7 @@ namespace MongoDB.Context.Tests
 {
 	public static class ContextAssertionExtensions
 	{
-		public static void AssertNoChange<TDocument, TIdField>(this MongoChangeSet<TDocument, TIdField> changes) 
+		public static void AssertNoChange<TDocument, TIdField>(this MongoCollectionChangeSet<TDocument, TIdField> changes) 
 			where TDocument : AbstractMongoEntityWithId<TIdField>
 		{
 			Assert.That(changes.Inserts.Count(), Is.EqualTo(0));
@@ -13,19 +13,19 @@ namespace MongoDB.Context.Tests
 			Assert.That(changes.Deletes.Count(), Is.EqualTo(0));
 		}
 
-		public static void AssertInsertCount<TDocument, TIdField>(this MongoChangeSet<TDocument, TIdField> changes, int expectedCount) 
+		public static void AssertInsertCount<TDocument, TIdField>(this MongoCollectionChangeSet<TDocument, TIdField> changes, int expectedCount) 
 			where TDocument : AbstractMongoEntityWithId<TIdField>
 		{
 			Assert.That(changes.Inserts.Count(), Is.EqualTo(expectedCount));
 		}
 
-		public static void AssertUpdateCount<TDocument, TIdField>(this MongoChangeSet<TDocument, TIdField> changes, int expectedCount) 
+		public static void AssertUpdateCount<TDocument, TIdField>(this MongoCollectionChangeSet<TDocument, TIdField> changes, int expectedCount) 
 			where TDocument : AbstractMongoEntityWithId<TIdField>
 		{
 			Assert.That(changes.Updates.Count(), Is.EqualTo(expectedCount));
 		}
 
-		public static void AssertDeleteCount<TDocument, TIdField>(this MongoChangeSet<TDocument, TIdField> changes, int expectedCount) 
+		public static void AssertDeleteCount<TDocument, TIdField>(this MongoCollectionChangeSet<TDocument, TIdField> changes, int expectedCount) 
 			where TDocument : AbstractMongoEntityWithId<TIdField>
 		{
 			Assert.That(changes.Deletes.Count(), Is.EqualTo(expectedCount));
