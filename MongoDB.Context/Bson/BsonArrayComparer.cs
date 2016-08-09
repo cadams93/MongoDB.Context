@@ -69,7 +69,7 @@ namespace MongoDB.Context.Bson
 				}
 			}
 
-			for (var i = head; i < right.Count() - tail; ++i)
+			for (var i = head; i < right.Count() - tail; i++)
 			{
 				var newElementPath = ElementPath.Concat(new object[] { i }).ToArray();
 				if (lcs.RightIndices.Contains(i - head))

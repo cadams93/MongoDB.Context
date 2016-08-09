@@ -7,6 +7,12 @@ using MongoDB.Driver;
 
 namespace MongoDB.Context
 {
+	/// <summary>
+	/// Base implementation of a tracked collection of MongoDB entities
+	/// Includes the ability to track, untrack and get changes since tracking began
+	/// </summary>
+	/// <typeparam name="TDocument">The .NET type of the MongoDB entity</typeparam>
+	/// <typeparam name="TIdField">The .NET type of the ID field for the MongoDB entity</typeparam>
 	public class MongoTrackedCollection<TDocument, TIdField> 
 		: IMongoTrackedCollection<TDocument, TIdField> 
 		where TDocument : AbstractMongoEntityWithId<TIdField>
@@ -24,6 +30,10 @@ namespace MongoDB.Context
 			}
 		}
 
+		/// <summary>
+		/// Insert the given entity into the current context
+		/// </summary>
+		/// <param name="entity"></param>
 		public void InsertOnSubmit(TDocument entity)
 		{
 			// Check if entity already tracked
@@ -52,12 +62,20 @@ namespace MongoDB.Context
 			_TrackedCollection.Attach(entity, EntityState.Added);
 		}
 
+		/// <summary>
+		/// Inserts the given entities into the current context (multi version of <see cref="InsertOnSubmit"/>)
+		/// </summary>
+		/// <param name="entities"></param>
 		public void InsertAllOnSubmit(IEnumerable<TDocument> entities)
 		{
 			foreach (var entity in entities)
 				InsertOnSubmit(entity);
 		}
 
+		/// <summary>
+		/// Remove the given entity from the current context
+		/// </summary>
+		/// <param name="entity"></param>
 		public void DeleteOnSubmit(TDocument entity)
 		{
 			// Check if entity already tracked
@@ -86,22 +104,31 @@ namespace MongoDB.Context
 			_TrackedCollection.Attach(entity, EntityState.Deleted);
 		}
 
+		/// <summary>
+		/// Deletes the given entities from the current context (multi version of <see cref="DeleteOnSubmit"/>)
+		/// </summary>
+		/// <param name="entities"></param>
 		public void DeleteAllOnSubmit(IEnumerable<TDocument> entities)
 		{
 			foreach (var entity in entities)
 				DeleteOnSubmit(entity);
 		}
 
+		/// <summary>
+		/// Get documents from the remote source (MongoDB collection)
+		/// If the document has already been read into the context, the already tracked document is returned
+		/// </summary>
+		/// <param name="pred"></param>
+		/// <returns></returns>
 		public IEnumerable<TDocument> Find(Expression<Func<TDocument, bool>> pred = null)
 		{
 			foreach (var entity in RemoteGet(pred))
 			{
 				// Check if entity already tracked
-				if (_TrackedCollection.Contains(entity))
+				if (_TrackedCollection.Contains(entity._Id))
 				{
-					//TODO: Fix this
-					// Do something else
-					yield break;
+					yield return _TrackedCollection[entity._Id].Entity;
+					continue;
 				}
 
 				_TrackedCollection.Attach(entity, EntityState.ReadFromSource);
@@ -110,6 +137,10 @@ namespace MongoDB.Context
 			}
 		}
 
+		/// <summary>
+		/// Get the changes required to synchronise the current context with MongoDB, according to the tracked state of each entity
+		/// </summary>
+		/// <returns></returns>
 		public MongoCollectionChangeSet<TDocument, TIdField> GetChanges()
 		{
 			var allTrackedEntities = _TrackedCollection.GetAllTrackedEntities().ToArray();
@@ -125,6 +156,9 @@ namespace MongoDB.Context
 			return new MongoCollectionChangeSet<TDocument, TIdField>(inserts, updates, deletes);
 		}
 
+		/// <summary>
+		/// Synchronises the tracked entities with MongoDB
+		/// </summary>
 		public void SubmitChanges()
 		{
 			var changeSet = GetChanges();

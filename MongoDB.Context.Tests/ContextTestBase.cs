@@ -1,4 +1,5 @@
 ﻿using System.Collections.Generic;
+using MongoDB.Bson;
 
 namespace MongoDB.Context.Tests
 {
@@ -10,6 +11,7 @@ namespace MongoDB.Context.Tests
 			{
 				new TestEntity
 				{
+					_Id = ObjectId.GenerateNewId(),
 					String = "OLD VALUE A",		
 					StringArray = new [] { "OLD VALUE A1", "OLD VALUE A2" },	
 					SubDocument = new SubDocument
@@ -24,6 +26,7 @@ namespace MongoDB.Context.Tests
 				},
 				new TestEntity
 				{
+					_Id = ObjectId.GenerateNewId(),
 					String = "OLD VALUE B",		
 					StringArray = new [] { "OLD VALUE B1", "OLD VALUE B2" },	
 					SubDocument = new SubDocument

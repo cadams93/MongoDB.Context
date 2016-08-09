@@ -1,6 +1,11 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Linq;
+using System.Net;
+using System.Reflection;
+using System.Xml.Schema;
 using MongoDB.Bson;
+using MongoDB.Bson.Serialization.Attributes;
 using MongoDB.Context.Bson.Differences;
 using MongoDB.Context.Locking;
 using MongoDB.Driver;
@@ -21,7 +26,9 @@ namespace MongoDB.Context
 				mongoChanges.AddRange(collectionChangeSet.Inserts
 					.Select(z => new MongoChange<TDocument, TIdField>
 					{
-						Change = new InsertOneModel<TDocument>(z.Entity),
+						Change = new InsertOneModel<TDocument>(
+							z.Entity
+						),
 						ExecutionOrder = 1
 					}));
 			}
@@ -31,7 +38,9 @@ namespace MongoDB.Context
 				mongoChanges.AddRange(collectionChangeSet.Deletes
 					.Select(z => new MongoChange<TDocument, TIdField>
 					{
-						Change = new DeleteOneModel<TDocument>(Builders<TDocument>.Filter.Eq(doc => doc._Id, z.Entity._Id)),
+						Change = new DeleteOneModel<TDocument>(
+							Builders<TDocument>.Filter.Eq(doc => doc._Id, z.Entity._Id)
+						),
 						ExecutionOrder = 1
 					}));
 			}
@@ -40,151 +49,250 @@ namespace MongoDB.Context
 			{
 				foreach (var documentUpdate in collectionChangeSet.Updates)
 				{
-					//var nullPullArrayFields = new HashSet<string>();
-					//var pushToArrayFields = new Dictionary<string, List<KeyValuePair<int, object>>>();
-
-					var setDocument = new BsonDocument();
-					var unsetDocument = new BsonDocument();
-					var pushDocument = new BsonDocument();
-					var pullDocument = new BsonDocument();
-
-					//UpdateDefinition<TDocument> update = null;
 					var document = documentUpdate.Key;
 
-					foreach (var difference in documentUpdate.Value)
+					var differenceByFields = documentUpdate.Value
+						.GroupBy(z => string.Join(".", z.FieldPath.TakeWhile(p => !(p is int))))
+						.ToDictionary(z => z.Key, z => z.ToArray());
+
+					UpdateDefinition<TDocument> fieldUpdates = null;
+					foreach (var differenceByField in differenceByFields)
 					{
-						var elementPath = string.Join(".", difference.FieldPath);
 						locksRequired.Add(new MongoLockRequest<TIdField>
 						{
 							DocumentId = document._Id,
-							// Allow locking up to the first Array Index specification
-							Field = string.Join(".", difference.FieldPath.TakeWhile(z => !(z is int)))
+							Field = differenceByField.Key
 						});
 
-						var fieldDifference = difference as BsonFieldDifference<TDocument, TIdField>;
-						if (fieldDifference != null)
+						// We have to be mindful of the order of operations to ensure index references are correct
+						// Iterate over the changes in order in which they were added to the collection
+						var order = 1;
+						foreach (var change in differenceByField.Value)
 						{
-							if (fieldDifference.NewValue == null)
+							var fieldChange = change as BsonFieldDifference<TDocument, TIdField>;
+							if (fieldChange != null)
 							{
-								//update = update == null
-								//	? Builders<TDocument>.Update.Unset(elementPath)
-								//	: update.Unset(elementPath);
+								var elementPath = string.Join(".", fieldChange.FieldPath);
+								var isRootFieldChange = fieldChange.FieldPath.All(z => !(z is int));
 
-								unsetDocument.Add(new BsonElement(elementPath, string.Empty));
+								if (fieldChange.NewValue == null)
+								{
+									if (isRootFieldChange)
+									{
+										fieldUpdates = fieldUpdates == null
+											? Builders<TDocument>.Update.Unset(elementPath)
+											: fieldUpdates.Unset(elementPath);
+									}
+									else
+									{
+										mongoChanges.Add(new MongoChange<TDocument, TIdField>
+										{
+											Change = new UpdateOneModel<TDocument>(
+												Builders<TDocument>.Filter.Eq(z => z._Id, document._Id),
+												Builders<TDocument>.Update.Unset(elementPath)
+											),
+											ExecutionOrder = ++order
+										});
+									}
+
+									continue;
+								}
+
+								var newValue = GetDotNetValue(fieldChange.FieldPath, fieldChange.NewValue);
+								if (isRootFieldChange)
+								{
+									fieldUpdates = fieldUpdates == null
+										? Builders<TDocument>.Update.Set(elementPath, newValue)
+										: fieldUpdates.Set(elementPath, newValue);
+								}
+								else
+								{
+									mongoChanges.Add(new MongoChange<TDocument, TIdField>
+									{
+										Change = new UpdateOneModel<TDocument>(
+											Builders<TDocument>.Filter.Eq(z => z._Id, document._Id),
+											Builders<TDocument>.Update.Set(elementPath, newValue)
+											),
+										ExecutionOrder = ++order
+									});
+								}
 
 								continue;
 							}
 
-							//var newValue = BsonTypeMapper.MapToDotNetValue(fieldDifference.NewValue);
-							//update = update == null
-							//	? Builders<TDocument>.Update.Set(elementPath, newValue)
-							//	: update.Set(elementPath, newValue);
+							var arrayChange = change as BsonArrayItemDifference<TDocument, TIdField>;
+							if (arrayChange != null)
+							{
+								switch (arrayChange.Type)
+								{
+									case BsonArrayItemDifferenceType.Add:
+										var newValue = GetDotNetValue(arrayChange.FieldPath, arrayChange.ArrayItem);
+										mongoChanges.Add(new MongoChange<TDocument, TIdField>
+										{
+											Change = new UpdateOneModel<TDocument>(
+												Builders<TDocument>.Filter.Eq(z => z._Id, document._Id),
+												Builders<TDocument>.Update.PushEach(differenceByField.Key, new[] { newValue }, position: (int)arrayChange.FieldPath.Last())
+											),
+											ExecutionOrder = ++order
+										});
+										break;
+									case BsonArrayItemDifferenceType.Remove:
+										var elementPath = string.Join(".", arrayChange.FieldPath);
+										mongoChanges.Add(new MongoChange<TDocument, TIdField>
+										{
+											Change = new UpdateOneModel<TDocument>(
+												Builders<TDocument>.Filter.Eq(z => z._Id, document._Id),
+												Builders<TDocument>.Update.Unset(elementPath)
+											),
+											ExecutionOrder = ++order
+										});
+										mongoChanges.Add(new MongoChange<TDocument, TIdField>
+										{
+											Change = new UpdateOneModel<TDocument>(
+												Builders<TDocument>.Filter.Eq(z => z._Id, document._Id),
+												Builders<TDocument>.Update.Pull(differenceByField.Key, (object)null)
+											),
+											ExecutionOrder = ++order
+										});
+										break;
+									default:
+										throw new ArgumentOutOfRangeException();
+								}
 
-							setDocument.Add(new BsonElement(elementPath, fieldDifference.NewValue));
+								continue;
+							}
 
-							continue;
+							throw new InvalidOperationException("Unable to get MongoDB change from difference type " + change.GetType().FullName);
 						}
-
-						//var arrayDifference = difference as BsonArrayItemDifference<TDocument, TIdField>;
-						//if (arrayDifference != null)
-						//{
-						//	var diff = difference;
-						//	// Get the array element path by taking up to the first integer (array index)
-						//	var arrayElementPath = string.Join(".", difference.FieldPath.TakeWhile((z, idx) => idx < diff.FieldPath.Length - 1));
-						//	var arrayIdx = (int) difference.FieldPath.SkipWhile(z => !(z is int)).Take(1).Single();
-
-						//	switch (arrayDifference.Type)
-						//	{
-						//		case BsonArrayItemDifferenceType.Add:
-
-						//			pushDocument.Add(new BsonElement(arrayElementPath,
-						//				new BsonDocument(new Dictionary<string, object>
-						//				{
-						//					{"$each", new[] {arrayDifference.ArrayItem}},
-						//					{"$position", arrayIdx}
-						//				})));
-
-						//			//var newValue = BsonTypeMapper.MapToDotNetValue(arrayDifference.ArrayItem);
-
-						//			//if (!pushToArrayFields.ContainsKey(arrayElementPath))
-						//			//	pushToArrayFields.Add(arrayElementPath, new List<KeyValuePair<int, object>>());
-
-						//			//pushToArrayFields[arrayElementPath].Add(new KeyValuePair<int, object>(arrayIdx, newValue));
-
-						//			break;
-						//		case BsonArrayItemDifferenceType.Remove:
-
-						//			//nullPullArrayFields.Add(arrayElementPath);
-						//			unsetDocument.Add(new BsonElement(elementPath, string.Empty));
-						//			pullDocument.Add(new BsonElement(arrayElementPath, string.Empty));
-
-						//			break;
-						//		default:
-						//			throw new ArgumentOutOfRangeException();
-						//	}
-						//}
 					}
 
-					if (setDocument.Any())
+					if (fieldUpdates == null) continue;
+
+					mongoChanges.Add(new MongoChange<TDocument, TIdField>
 					{
-						mongoChanges.Add(new MongoChange<TDocument, TIdField>
-						{
-							Change = new UpdateOneModel<TDocument>(
-								Builders<TDocument>.Filter.Eq(z => z._Id, document._Id),
-								new BsonDocumentUpdateDefinition<TDocument>(new BsonDocument(new BsonElement("$set", setDocument)))
-							)
-						});
-					}
-
-					if (unsetDocument.Any())
-					{
-						mongoChanges.Add(new MongoChange<TDocument, TIdField>
-						{
-							Change = new UpdateOneModel<TDocument>(
-								Builders<TDocument>.Filter.Eq(z => z._Id, document._Id),
-								new BsonDocumentUpdateDefinition<TDocument>(new BsonDocument(new BsonElement("$unset", unsetDocument)))
-							)
-						});
-					}
-					//if (update != null)
-					//{
-					//	mongoChanges.Add(new MongoChange<TDocument, TIdField>
-					//	{
-					//		Change = new UpdateOneModel<TDocument>(Builders<TDocument>.Filter.Eq(doc => doc._Id, document._Id), update),
-					//		ExecutionOrder = 1
-					//	});	
-					//}
-
-					//foreach (var nullPullArrayField in nullPullArrayFields)
-					//{
-					//	var bsonNullValue = BsonTypeMapper.MapToDotNetValue(BsonNull.Value);
-
-					//	mongoChanges.Add(new MongoChange<TDocument, TIdField>
-					//	{
-					//		Change = new UpdateOneModel<TDocument>(
-					//			Builders<TDocument>.Filter.Eq(doc => doc._Id, document._Id),
-					//			Builders<TDocument>.Update.Pull(nullPullArrayField, bsonNullValue)
-					//		),
-					//		ExecutionOrder = 2
-					//	});
-					//}
-
-					//foreach (var pushToArrayRequest in pushToArrayFields)
-					//{
-					//	mongoChanges.AddRange(pushToArrayRequest.Value
-					//		.Select(pushToArrayConfig => new MongoChange<TDocument, TIdField>
-					//		{
-					//			Change = new UpdateOneModel<TDocument>(
-					//				Builders<TDocument>.Filter.Eq(doc => doc._Id, document._Id),
-					//				Builders<TDocument>.Update.PushEach(pushToArrayRequest.Key, new[] {pushToArrayConfig.Value}, position: pushToArrayConfig.Key)
-					//			), 
-					//			ExecutionOrder = 3
-					//		}));
-					//}
+						Change = new UpdateOneModel<TDocument>(
+							Builders<TDocument>.Filter.Eq(z => z._Id, document._Id),
+							fieldUpdates
+						),
+						ExecutionOrder = 1
+					});
 				}
 			}
 
 			return mongoChanges.ToArray();
+		}
+
+		private static object GetDotNetValue(object[] fieldPath, BsonValue value)
+		{
+			// Simple type
+			if (!value.IsBsonDocument && !value.IsBsonArray)
+			{
+				return BsonTypeMapper.MapToDotNetValue(value);
+			}
+
+			// Array (of either a simple type or document)
+			if (value.IsBsonArray)
+			{
+				var bsonArray = value.AsBsonArray;
+				return bsonArray.Select((t, idx) => GetDotNetValue(fieldPath.Concat(new object[] {idx}).ToArray(), t)).ToArray();
+			}
+
+			// Here, we are a BSON document (most likely a new .NET type)
+			var type = GetTypeOfField(fieldPath);
+
+			var requiredMembers = value.AsBsonDocument.Names.ToArray();
+			var memberDict = type.GetMembers()
+				.Where(z =>
+					z.CustomAttributes.All(a => a.AttributeType != typeof(BsonIgnoreAttribute))
+					&& (requiredMembers.Contains(z.Name) || (
+						z.GetCustomAttributes(typeof(BsonElementAttribute)).Any()
+						&& requiredMembers.Contains(((BsonElementAttribute)z.GetCustomAttributes(typeof(BsonElementAttribute)).Single()).ElementName))
+						)
+				)
+				.ToDictionary(z =>
+				{
+					if (requiredMembers.Contains(z.Name)) return z.Name;
+					var bsonElementAttribute = (BsonElementAttribute)z.GetCustomAttributes(typeof(BsonElementAttribute)).Single();
+					return bsonElementAttribute.ElementName;
+				});
+
+			//Rehydrate an instance of the given type
+			var instance = Activator.CreateInstance(type);
+			foreach (var element in value.AsBsonDocument.Elements)
+			{
+				var member = memberDict[element.Name];
+
+				var propInfo = member as PropertyInfo;
+				if (propInfo != null)
+				{
+					propInfo.SetValue(instance, BsonTypeMapper.MapToDotNetValue(element.Value));
+					continue;
+				}
+
+				var fieldInfo = member as FieldInfo;
+				if (fieldInfo != null)
+				{
+					fieldInfo.SetValue(instance, BsonTypeMapper.MapToDotNetValue(element.Value));
+					continue;
+				}
+			}
+
+			return instance;
+		}
+
+		private static Type GetTypeOfField(object[] fieldPath)
+		{
+			var queue = new Queue<object>(fieldPath);
+
+			Type tempType = null;
+			while (queue.Any())
+			{
+				var field = queue.Dequeue();
+
+				var fieldName = field as string;
+				var arrayIndex = field as int?;
+
+				if (fieldName == null && arrayIndex.HasValue)
+				{
+					if (tempType == null || tempType.GetInterfaces().All(z => !z.IsGenericType || z.GetGenericTypeDefinition() != typeof(IEnumerable<>)))
+						throw new Exception(string.Format("Cannot find C# type for {0}", string.Join(".", fieldPath)));
+
+					var enumerableInterface = tempType.GetInterfaces().Single(z => z.IsGenericType && z.GetGenericTypeDefinition() == typeof(IEnumerable<>));
+					tempType = enumerableInterface.GetGenericArguments()[0];
+					continue;
+				}
+
+				var member = (tempType ?? typeof(TDocument))
+					.GetMembers()
+					.SingleOrDefault(z =>
+						z.CustomAttributes.All(a => a.AttributeType != typeof(BsonIgnoreAttribute))
+						&& (z.Name == fieldName || (
+							z.GetCustomAttributes(typeof(BsonElementAttribute)).Any()
+							&& ((BsonElementAttribute)z.GetCustomAttributes(typeof(BsonElementAttribute)).Single()).ElementName == fieldName)
+						)
+					);
+
+				if (member == null)
+					throw new Exception(string.Format("Cannot find C# type for {0}", string.Join(".", fieldPath)));
+
+				var propInfo  = member as PropertyInfo;
+				if (propInfo != null)
+				{
+					tempType = propInfo.PropertyType;
+					continue;
+				}
+
+				var fieldInfo = member as FieldInfo;
+				if (fieldInfo != null)
+				{
+					tempType = fieldInfo.FieldType;
+					continue;
+				}
+
+				throw new Exception(string.Format("Cannot find C# type for {0}", string.Join(".", fieldPath)));
+			}
+
+			return tempType;
 		}
 	}
 }
