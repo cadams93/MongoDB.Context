@@ -57,6 +57,7 @@
   <ItemGroup>
     <Compile Include="AbstractMongoEntity.cs" />
     <Compile Include="AbstractMongoEntityWithId.cs" />
+    <Compile Include="MongoBsonTypeMapper.cs" />
     <Compile Include="Bson\BsonArrayComparer.cs" />
     <Compile Include="Bson\BsonArrayLcsAlgorithm.cs" />
     <Compile Include="Bson\BsonComparer.cs" />
