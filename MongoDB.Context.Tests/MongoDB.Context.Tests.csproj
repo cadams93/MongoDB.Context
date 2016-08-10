@@ -87,6 +87,7 @@
   </Choose>
   <ItemGroup>
     <Compile Include="Bson\BsonComparerTests.cs" />
+    <Compile Include="ChangeFactoryTests.cs" />
     <Compile Include="ContextAssertionExtensions.cs" />
     <Compile Include="ContextDeleteTests.cs" />
     <Compile Include="ContextInsertTests.cs" />

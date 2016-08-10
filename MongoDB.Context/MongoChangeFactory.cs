@@ -176,6 +176,18 @@ namespace MongoDB.Context
 
 							throw new InvalidOperationException("Unable to get MongoDB change from difference type " + change.GetType().FullName);
 						}
+
+						if (!nullPullRequired) continue;
+
+						// Do the last NULL pull
+						mongoChanges.Add(new MongoChange<TDocument, TIdField>
+						{
+							Change = new UpdateOneModel<TDocument>(
+								Builders<TDocument>.Filter.Eq(z => z._Id, document._Id),
+								Builders<TDocument>.Update.Pull(differenceByField.Key, (object)null)
+								),
+							ExecutionOrder = ++order
+						});
 					}
 
 					if (fieldUpdates == null) continue;
