@@ -99,6 +99,7 @@
     <Compile Include="MockMongoTrackedCollection.cs" />
     <Compile Include="OperatorType.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="TypeMapperTests.cs" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\MongoDB.Context\MongoDB.Context.csproj">
