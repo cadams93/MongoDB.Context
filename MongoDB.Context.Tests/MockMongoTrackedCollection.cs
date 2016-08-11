@@ -5,22 +5,27 @@ using System.Linq.Expressions;
 
 namespace MongoDB.Context.Tests
 {
-	public class MockMongoTrackedCollection<T, TIdField> 
-		: MongoTrackedCollection<T, TIdField>
-		where T : AbstractMongoEntityWithId<TIdField>
+	public class MockMongoTrackedCollection<TDocument, TIdField> 
+		: MongoTrackedCollection<TDocument, TIdField>
+		where TDocument : AbstractMongoEntityWithId<TIdField>
 	{
-		private readonly T[] _Entities;
+		private readonly TDocument[] _Entities;
 
-		public MockMongoTrackedCollection(T[] entities)
+		public MockMongoTrackedCollection(TDocument[] entities)
 		{
 			_Entities = entities;
 		}
 
-		protected override IEnumerable<T> RemoteGet(Expression<Func<T, bool>> pred = null)
+		protected override IEnumerable<TDocument> RemoteGet(Expression<Func<TDocument, bool>> pred = null)
 		{
 			var compiledPred = (pred ?? (obj => true)).Compile();
 
 			return _Entities.Where(z => compiledPred.Invoke(z));
+		}
+
+		public override IEnumerator<TDocument> GetEnumerator()
+		{
+			return new TrackingEntityEnumerator<TDocument, TIdField>(TrackedEntities, _Entities.AsQueryable());
 		}
 	}
 }

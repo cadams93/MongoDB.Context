@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using System.Linq.Expressions;
@@ -14,12 +15,12 @@ namespace MongoDB.Context
 	/// <typeparam name="TDocument">The .NET type of the MongoDB entity</typeparam>
 	/// <typeparam name="TIdField">The .NET type of the ID field for the MongoDB entity</typeparam>
 	public class MongoTrackedCollection<TDocument, TIdField> 
-		: IMongoTrackedCollection<TDocument, TIdField> 
+		: IMongoTrackedCollection<TDocument, TIdField>
 		where TDocument : AbstractMongoEntityWithId<TIdField>
 	{
 		private readonly IMongoClient _Client;
 		private readonly IMongoCollection<TDocument> _Collection;
-		private readonly TrackedCollection<TDocument, TIdField> _TrackedCollection = new TrackedCollection<TDocument, TIdField>();
+		protected readonly TrackedCollection<TDocument, TIdField> TrackedEntities = new TrackedCollection<TDocument, TIdField>();
 
 		protected MongoTrackedCollection() {}
 		public MongoTrackedCollection(IMongoClient client)
@@ -38,10 +39,25 @@ namespace MongoDB.Context
 		/// <param name="entity"></param>
 		public void InsertOnSubmit(TDocument entity)
 		{
+			AttachImpl(entity);
+		}
+
+		/// <summary>
+		/// Inserts the given entities into the current context (multi version of <see cref="InsertOnSubmit"/>)
+		/// </summary>
+		/// <param name="entities"></param>
+		public void InsertAllOnSubmit(IEnumerable<TDocument> entities)
+		{
+			foreach (var entity in entities)
+				AttachImpl(entity);
+		}
+
+		private void AttachImpl(TDocument entity)
+		{
 			// Check if entity already tracked
-			if (_TrackedCollection.Contains(entity))
+			if (TrackedEntities.Contains(entity))
 			{
-				var trackedEntity = _TrackedCollection[entity];
+				var trackedEntity = TrackedEntities[entity];
 
 				switch (trackedEntity.State)
 				{
@@ -61,17 +77,7 @@ namespace MongoDB.Context
 				return;
 			}
 
-			_TrackedCollection.Attach(entity, EntityState.Added);
-		}
-
-		/// <summary>
-		/// Inserts the given entities into the current context (multi version of <see cref="InsertOnSubmit"/>)
-		/// </summary>
-		/// <param name="entities"></param>
-		public void InsertAllOnSubmit(IEnumerable<TDocument> entities)
-		{
-			foreach (var entity in entities)
-				InsertOnSubmit(entity);
+			TrackedEntities.Attach(entity, EntityState.Added);
 		}
 
 		/// <summary>
@@ -80,10 +86,25 @@ namespace MongoDB.Context
 		/// <param name="entity"></param>
 		public void DeleteOnSubmit(TDocument entity)
 		{
+			DetachImpl(entity);
+		}
+
+		/// <summary>
+		/// Deletes the given entities from the current context (multi version of <see cref="DeleteOnSubmit"/>)
+		/// </summary>
+		/// <param name="entities"></param>
+		public void DeleteAllOnSubmit(IEnumerable<TDocument> entities)
+		{
+			foreach (var entity in entities)
+				DetachImpl(entity);
+		}
+
+		private void DetachImpl(TDocument entity)
+		{
 			// Check if entity already tracked
-			if (_TrackedCollection.Contains(entity))
+			if (TrackedEntities.Contains(entity))
 			{
-				var trackedEntity = _TrackedCollection[entity];
+				var trackedEntity = TrackedEntities[entity];
 
 				switch (trackedEntity.State)
 				{
@@ -103,40 +124,7 @@ namespace MongoDB.Context
 				return;
 			}
 
-			_TrackedCollection.Attach(entity, EntityState.Deleted);
-		}
-
-		/// <summary>
-		/// Deletes the given entities from the current context (multi version of <see cref="DeleteOnSubmit"/>)
-		/// </summary>
-		/// <param name="entities"></param>
-		public void DeleteAllOnSubmit(IEnumerable<TDocument> entities)
-		{
-			foreach (var entity in entities)
-				DeleteOnSubmit(entity);
-		}
-
-		/// <summary>
-		/// Get documents from the remote source (MongoDB collection)
-		/// If the document has already been read into the context, the already tracked document is returned
-		/// </summary>
-		/// <param name="pred"></param>
-		/// <returns></returns>
-		public IEnumerable<TDocument> Find(Expression<Func<TDocument, bool>> pred = null)
-		{
-			foreach (var entity in RemoteGet(pred))
-			{
-				// Check if entity already tracked
-				if (_TrackedCollection.Contains(entity._Id))
-				{
-					yield return _TrackedCollection[entity._Id].Entity;
-					continue;
-				}
-
-				_TrackedCollection.Attach(entity, EntityState.ReadFromSource);
-
-				yield return entity;
-			}
+			TrackedEntities.Attach(entity, EntityState.Deleted);
 		}
 
 		/// <summary>
@@ -145,7 +133,7 @@ namespace MongoDB.Context
 		/// <returns></returns>
 		public MongoCollectionChangeSet<TDocument, TIdField> GetChanges()
 		{
-			var allTrackedEntities = _TrackedCollection.GetAllTrackedEntities().ToArray();
+			var allTrackedEntities = TrackedEntities.GetAllTrackedEntities().ToArray();
 
 			var inserts = allTrackedEntities.Where(z => z.State == EntityState.Added).ToArray();
 			var deletes = allTrackedEntities.Where(z => z.State == EntityState.Deleted).ToArray();
@@ -212,7 +200,7 @@ namespace MongoDB.Context
 			}
 
 			// Cleanup the state of all of the tracked objects
-			_TrackedCollection.CleanupEntityStateAfterSubmit();
+			TrackedEntities.CleanupEntityStateAfterSubmit();
 		}
 
 		private Dictionary<int, BulkWriteResult<TDocument>> BulkWriteChanges(IEnumerable<MongoChange<TDocument, TIdField>> changesForOperation, bool stopOnFailure = true)
@@ -230,9 +218,30 @@ namespace MongoDB.Context
 			return bulkWriteResults;
 		}
 
+		/// <summary>
+		/// Get documents from the remote source (MongoDB collection)
+		/// If the document has already been read into the context, the already tracked document is returned
+		/// </summary>
+		/// <param name="pred"></param>
+		/// <returns></returns>
+		public IEnumerable<TDocument> Find(Expression<Func<TDocument, bool>> pred = null)
+		{
+			return new TrackingEntityEnumerator<TDocument, TIdField>(TrackedEntities, RemoteGet(pred)).Iterate();
+		}
+
 		protected virtual IEnumerable<TDocument> RemoteGet(Expression<Func<TDocument, bool>> pred = null)
 		{
 			return _Collection.FindSync(pred ?? (z => true)).ToList();
+		}
+
+		public virtual IEnumerator<TDocument> GetEnumerator()
+		{
+			return new TrackingEntityEnumerator<TDocument, TIdField>(TrackedEntities, _Collection.AsQueryable());
+		}
+
+		IEnumerator IEnumerable.GetEnumerator()
+		{
+			return GetEnumerator();
 		}
 	}
 }

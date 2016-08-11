@@ -14,7 +14,7 @@ namespace MongoDB.Context.Client
 		{
 			using (var ctx = new MongoContext(new MongoClient()))
 			{
-				var x = ctx.TestEntities.Find().First();
+				var x = ctx.TestEntities.First();
 				x.SimpleArray = new List<SimpleObject>
 				{
 					new SimpleObject { Integer = 100, String = "Hjdwhad" },

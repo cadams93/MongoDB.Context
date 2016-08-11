@@ -10,7 +10,6 @@ namespace MongoDB.Context
 	{
 		public TDocument Entity { get; private set; }
 		public BsonDocument OriginalState { get; private set; }
-		
 		public EntityState State { get; set; }
 
 		public TrackedEntity(TDocument entity, EntityState state)
@@ -40,7 +39,7 @@ namespace MongoDB.Context
 			}
 		}
 
-		public void ResetOriginalState()
+		public void ResetOriginalDocumentState()
 		{
 			OriginalState = this.Entity.ToBsonDocument();
 		}

@@ -29,7 +29,7 @@ namespace MongoDB.Context.Tests
 		{
 			using (var ctx = new MockMongoContext(_TestEntities))
 			{
-				var entities = ctx.TestEntities.Find();
+				var entities = ctx.TestEntities;
 				ctx.TestEntities.DeleteOnSubmit(entities.Take(1).Single());
 
 				var changes = ctx.TestEntities.GetChanges();
@@ -42,7 +42,7 @@ namespace MongoDB.Context.Tests
 		{
 			using (var ctx = new MockMongoContext(_TestEntities))
 			{
-				var entities = ctx.TestEntities.Find();
+				var entities = ctx.TestEntities;
 				ctx.TestEntities.DeleteAllOnSubmit(entities.Take(2).ToArray());
 
 				var changes = ctx.TestEntities.GetChanges();

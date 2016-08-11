@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
-using System.Linq;
 
 namespace MongoDB.Context
 {
@@ -123,12 +122,12 @@ namespace MongoDB.Context
 		/// </summary>
 		public void CleanupEntityStateAfterSubmit()
 		{
-			foreach (var trackedEntity in GetAllTrackedEntities().ToArray())
+			foreach (var trackedEntity in GetAllTrackedEntities())
 			{
 				switch (trackedEntity.State)
 				{
 					case EntityState.Added:
-						trackedEntity.ResetOriginalState();
+						trackedEntity.ResetOriginalDocumentState();
 						trackedEntity.State = EntityState.ReadFromSource;
 						break;
 					case EntityState.Deleted:
@@ -136,7 +135,7 @@ namespace MongoDB.Context
 						break;
 					case EntityState.ReadFromSource:
 					case EntityState.NoActionRequired:
-						trackedEntity.ResetOriginalState();
+						trackedEntity.ResetOriginalDocumentState();
 						break;
 					default:
 						throw new ArgumentOutOfRangeException();

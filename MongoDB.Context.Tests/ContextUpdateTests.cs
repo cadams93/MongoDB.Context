@@ -29,7 +29,7 @@ namespace MongoDB.Context.Tests
 		{
 			using (var ctx = new MockMongoContext(_TestEntities))
 			{
-				var entity = ctx.TestEntities.Find().First();
+				var entity = ctx.TestEntities.First();
 				entity.String = "NEW VALUE";
 
 				var changes = ctx.TestEntities.GetChanges();
@@ -42,7 +42,7 @@ namespace MongoDB.Context.Tests
 		{
 			using (var ctx = new MockMongoContext(_TestEntities))
 			{
-				var entity = ctx.TestEntities.Find().First();
+				var entity = ctx.TestEntities.First();
 				entity.String = "NEW VALUE";
 				entity.Enum = EnumTest.Value1;
 
@@ -56,7 +56,7 @@ namespace MongoDB.Context.Tests
 		{
 			using (var ctx = new MockMongoContext(_TestEntities))
 			{
-				var entity = ctx.TestEntities.Find().First();
+				var entity = ctx.TestEntities.First();
 				entity.String = "NEW VALUE";
 				entity.String = "NEW VALUE 2";
 
@@ -70,7 +70,7 @@ namespace MongoDB.Context.Tests
 		{
 			using (var ctx = new MockMongoContext(_TestEntities))
 			{
-				var entity = ctx.TestEntities.Find().First();
+				var entity = ctx.TestEntities.First();
 				entity.String = "NEW VALUE";
 				entity.String = "OLD VALUE A";
 
@@ -84,7 +84,7 @@ namespace MongoDB.Context.Tests
 		{
 			using (var ctx = new MockMongoContext(_TestEntities))
 			{
-				var entity = ctx.TestEntities.Find().First();
+				var entity = ctx.TestEntities.First();
 				entity.StringArray = new[] { "OLD VALUE A1", "OLD VALUE A2", "NEW VALUE" };
 
 				var changes = ctx.TestEntities.GetChanges();
@@ -97,7 +97,7 @@ namespace MongoDB.Context.Tests
 		{
 			using (var ctx = new MockMongoContext(_TestEntities))
 			{
-				var entity = ctx.TestEntities.Find().First();
+				var entity = ctx.TestEntities.First();
 				entity.StringArray = new[] { "OLD VALUE A1" };
 
 				var changes = ctx.TestEntities.GetChanges();
@@ -110,7 +110,7 @@ namespace MongoDB.Context.Tests
 		{
 			using (var ctx = new MockMongoContext(_TestEntities))
 			{
-				var entity = ctx.TestEntities.Find().First();
+				var entity = ctx.TestEntities.First();
 				entity.StringArray = new  [] { "NEW VALUE" };
 				entity.StringArray = new[] { "OLD VALUE A1", "OLD VALUE A2" };
 
@@ -124,7 +124,7 @@ namespace MongoDB.Context.Tests
 		{
 			using (var ctx = new MockMongoContext(_TestEntities))
 			{
-				var entity = ctx.TestEntities.Find().First();
+				var entity = ctx.TestEntities.First();
 				entity.SubDocument = new SubDocument { String = "NEW SUB DOCUMENT" };
 
 				var changes = ctx.TestEntities.GetChanges();
@@ -137,7 +137,7 @@ namespace MongoDB.Context.Tests
 		{
 			using (var ctx = new MockMongoContext(_TestEntities))
 			{
-				var entity = ctx.TestEntities.Find().First();
+				var entity = ctx.TestEntities.First();
 				entity.SubDocument = new SubDocument { String = "NEW SUB DOCUMENT", Integer = 10 };
 
 				var changes = ctx.TestEntities.GetChanges();
@@ -150,7 +150,7 @@ namespace MongoDB.Context.Tests
 		{
 			using (var ctx = new MockMongoContext(_TestEntities))
 			{
-				var entity = ctx.TestEntities.Find().First();
+				var entity = ctx.TestEntities.First();
 				entity.SubDocument = new SubDocument { String = "NEW SUB DOCUMENT"};
 				entity.SubDocument = new SubDocument { String = "SUB DOCUMENT A" };
 
@@ -164,7 +164,7 @@ namespace MongoDB.Context.Tests
 		{
 			using (var ctx = new MockMongoContext(_TestEntities))
 			{
-				var entity = ctx.TestEntities.Find().First();
+				var entity = ctx.TestEntities.First();
 				entity.String = "NEW VALUE";
 				entity.SubDocument = new SubDocument { String = "NEW SUB DOCUMENT" };
 
@@ -178,7 +178,7 @@ namespace MongoDB.Context.Tests
 		{
 			using (var ctx = new MockMongoContext(_TestEntities))
 			{
-				var entity = ctx.TestEntities.Find().First();
+				var entity = ctx.TestEntities.First();
 				entity.String = "NEW VALUE";
 				entity.SubDocument = new SubDocument { String = "NEW SUB DOCUMENT", Integer = 10 };
 
@@ -192,7 +192,7 @@ namespace MongoDB.Context.Tests
 		{
 			using (var ctx = new MockMongoContext(_TestEntities))
 			{
-				var entity = ctx.TestEntities.Find().First();
+				var entity = ctx.TestEntities.First();
 				entity.SimpleArray[0].Integer = 10;
 
 				var changes = ctx.TestEntities.GetChanges();

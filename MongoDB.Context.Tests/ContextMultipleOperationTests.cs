@@ -20,7 +20,7 @@ namespace MongoDB.Context.Tests
 		{
 			using (var ctx = new MockMongoContext(_TestEntities))
 			{
-				var entity = ctx.TestEntities.Find().First();
+				var entity = ctx.TestEntities.First();
 				ctx.TestEntities.DeleteOnSubmit(entity);
 
 				entity.String = "NEW VALUE";
@@ -35,7 +35,7 @@ namespace MongoDB.Context.Tests
 		{
 			using (var ctx = new MockMongoContext(_TestEntities))
 			{
-				var entity = ctx.TestEntities.Find().First();
+				var entity = ctx.TestEntities.First();
 				entity.String = "NEW VALUE";
 
 				ctx.TestEntities.DeleteOnSubmit(entity);
@@ -107,7 +107,7 @@ namespace MongoDB.Context.Tests
 		{
 			using (var ctx = new MockMongoContext(_TestEntities))
 			{
-				var entity = ctx.TestEntities.Find().First();
+				var entity = ctx.TestEntities.First();
 				ctx.TestEntities.DeleteOnSubmit(entity);
 
 				ctx.TestEntities.InsertOnSubmit(entity);
@@ -122,7 +122,7 @@ namespace MongoDB.Context.Tests
 		{
 			using (var ctx = new MockMongoContext(_TestEntities))
 			{
-				var entity = ctx.TestEntities.Find().First();
+				var entity = ctx.TestEntities.First();
 				ctx.TestEntities.DeleteOnSubmit(entity);
 
 				ctx.TestEntities.InsertOnSubmit(entity);
@@ -139,7 +139,7 @@ namespace MongoDB.Context.Tests
 		{
 			using (var ctx = new MockMongoContext(_TestEntities))
 			{
-				var entity = ctx.TestEntities.Find().First();
+				var entity = ctx.TestEntities.First();
 				ctx.TestEntities.DeleteOnSubmit(entity);
 				
 				entity.String = "NEW VALUE";
@@ -156,7 +156,7 @@ namespace MongoDB.Context.Tests
 		{
 			using (var ctx = new MockMongoContext(_TestEntities))
 			{
-				var entity = ctx.TestEntities.Find().First();
+				var entity = ctx.TestEntities.First();
 				ctx.TestEntities.DeleteOnSubmit(entity);
 				
 				entity.String = "NEW VALUE";
@@ -175,7 +175,7 @@ namespace MongoDB.Context.Tests
 		{
 			using (var ctx = new MockMongoContext(_TestEntities))
 			{
-				var entity = ctx.TestEntities.Find().First();
+				var entity = ctx.TestEntities.First();
 				ctx.TestEntities.DeleteOnSubmit(entity);
 				ctx.TestEntities.InsertOnSubmit(entity);
 				ctx.TestEntities.DeleteOnSubmit(entity);
@@ -191,7 +191,7 @@ namespace MongoDB.Context.Tests
 		{
 			using (var ctx = new MockMongoContext(_TestEntities))
 			{
-				var entity = ctx.TestEntities.Find().First();
+				var entity = ctx.TestEntities.First();
 				ctx.TestEntities.DeleteOnSubmit(entity);
 				ctx.TestEntities.InsertOnSubmit(entity);
 
@@ -210,7 +210,7 @@ namespace MongoDB.Context.Tests
 		{
 			using (var ctx = new MockMongoContext(_TestEntities))
 			{
-				var entity = ctx.TestEntities.Find().First();
+				var entity = ctx.TestEntities.First();
 
 				var ex = Assert.Throws<Exception>(delegate { ctx.TestEntities.InsertOnSubmit(entity); });
 				Assert.That(ex.Message, Is.EqualTo("Attempting to insert an entity which already exists"));
@@ -222,7 +222,7 @@ namespace MongoDB.Context.Tests
 		{
 			using (var ctx = new MockMongoContext(_TestEntities))
 			{
-				var entity = ctx.TestEntities.Find().First();
+				var entity = ctx.TestEntities.First();
 				ctx.TestEntities.DeleteOnSubmit(entity);
 
 				var ex = Assert.Throws<Exception>(delegate { ctx.TestEntities.DeleteOnSubmit(entity); });

@@ -10,7 +10,7 @@ namespace MongoDB.Context
 	/// <typeparam name="TDocument">The .NET type of the MongoDB entity</typeparam>
 	/// <typeparam name="TIdField">The .NET type of the ID field for the MongoDB entity</typeparam>
 	public interface IMongoTrackedCollection<TDocument, TIdField> 
-		: IMongoTrackedCollection
+		: IMongoTrackedCollection, IEnumerable<TDocument>
 		where TDocument : AbstractMongoEntityWithId<TIdField>
 	{
 		void InsertOnSubmit(TDocument entity);

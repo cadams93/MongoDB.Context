@@ -84,6 +84,7 @@
     <Compile Include="TestEntity.cs" />
     <Compile Include="TrackedCollection.cs" />
     <Compile Include="TrackedEntity.cs" />
+    <Compile Include="TrackingEntityEnumerator.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="App.config" />
