@@ -1,6 +1,5 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq.Expressions;
+﻿using System.Collections.Generic;
+using MongoDB.Driver;
 
 namespace MongoDB.Context
 {
@@ -18,7 +17,7 @@ namespace MongoDB.Context
 		void DeleteOnSubmit(TDocument entity);
 		void DeleteAllOnSubmit(IEnumerable<TDocument> entities);
 
-		IEnumerable<TDocument> Find(Expression<Func<TDocument, bool>> pred = null);
+		IEnumerable<TDocument> FindUsingFilter(FilterDefinition<TDocument> pred = null);
 		MongoCollectionChangeSet<TDocument, TIdField> GetChanges();
 	}
 

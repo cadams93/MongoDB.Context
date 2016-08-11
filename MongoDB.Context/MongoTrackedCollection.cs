@@ -224,14 +224,10 @@ namespace MongoDB.Context
 		/// </summary>
 		/// <param name="pred"></param>
 		/// <returns></returns>
-		public IEnumerable<TDocument> Find(Expression<Func<TDocument, bool>> pred = null)
+		public IEnumerable<TDocument> FindUsingFilter(FilterDefinition<TDocument> pred = null)
 		{
-			return new TrackingEntityEnumerator<TDocument, TIdField>(TrackedEntities, RemoteGet(pred)).Iterate();
-		}
-
-		protected virtual IEnumerable<TDocument> RemoteGet(Expression<Func<TDocument, bool>> pred = null)
-		{
-			return _Collection.FindSync(pred ?? (z => true)).ToList();
+			pred = pred ?? new ExpressionFilterDefinition<TDocument>(z => true);
+			return new TrackingEntityEnumerator<TDocument, TIdField>(TrackedEntities, _Collection.FindSync(pred).ToList()).Iterate();
 		}
 
 		public virtual IEnumerator<TDocument> GetEnumerator()
