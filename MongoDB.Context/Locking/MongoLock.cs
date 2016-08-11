@@ -6,6 +6,9 @@ namespace MongoDB.Context.Locking
 {
 	public sealed class MongoLock<TIdField> : AbstractMongoEntityWithId<ObjectId>
 	{
+		public override string DatabaseKey { get { return "test"; } }
+		public override string CollectionKey { get { return "locks"; } }
+
 		public TIdField DocumentId { get; set; }
 		public string Field { get; set; }
 

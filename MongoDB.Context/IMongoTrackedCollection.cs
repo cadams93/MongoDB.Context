@@ -10,6 +10,7 @@ namespace MongoDB.Context
 	/// <typeparam name="TDocument">The .NET type of the MongoDB entity</typeparam>
 	/// <typeparam name="TIdField">The .NET type of the ID field for the MongoDB entity</typeparam>
 	public interface IMongoTrackedCollection<TDocument, TIdField> 
+		: IMongoTrackedCollection
 		where TDocument : AbstractMongoEntityWithId<TIdField>
 	{
 		void InsertOnSubmit(TDocument entity);
@@ -19,6 +20,13 @@ namespace MongoDB.Context
 
 		IEnumerable<TDocument> Find(Expression<Func<TDocument, bool>> pred = null);
 		MongoCollectionChangeSet<TDocument, TIdField> GetChanges();
+	}
+
+	/// <summary>
+	/// 
+	/// </summary>
+	public interface IMongoTrackedCollection
+	{
 		void SubmitChanges();
 	}
 }

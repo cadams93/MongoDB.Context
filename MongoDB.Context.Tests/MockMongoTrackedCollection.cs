@@ -12,7 +12,6 @@ namespace MongoDB.Context.Tests
 		private readonly T[] _Entities;
 
 		public MockMongoTrackedCollection(T[] entities)
-			: base(null, string.Empty, string.Empty)
 		{
 			_Entities = entities;
 		}

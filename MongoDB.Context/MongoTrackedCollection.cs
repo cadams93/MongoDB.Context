@@ -17,17 +17,19 @@ namespace MongoDB.Context
 		: IMongoTrackedCollection<TDocument, TIdField> 
 		where TDocument : AbstractMongoEntityWithId<TIdField>
 	{
-		private readonly IMongoClient _Client = null;
-		private readonly IMongoCollection<TDocument> _Collection = null;
+		private readonly IMongoClient _Client;
+		private readonly IMongoCollection<TDocument> _Collection;
 		private readonly TrackedCollection<TDocument, TIdField> _TrackedCollection = new TrackedCollection<TDocument, TIdField>();
 
-		public MongoTrackedCollection(IMongoClient client, string databaseKey, string collectionKey)
+		protected MongoTrackedCollection() {}
+		public MongoTrackedCollection(IMongoClient client)
 		{
-			if (client != null)
-			{
-				_Collection = client.GetDatabase(databaseKey).GetCollection<TDocument>(collectionKey);
-				_Client = client;
-			}
+			if (client == null) throw new ArgumentNullException("client");
+
+			var doc = Activator.CreateInstance<TDocument>();
+
+			_Collection = client.GetDatabase(doc.DatabaseKey).GetCollection<TDocument>(doc.CollectionKey);
+			_Client = client;
 		}
 
 		/// <summary>

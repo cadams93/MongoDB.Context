@@ -14,6 +14,9 @@ namespace MongoDB.Context
 
 	public class TestEntity : AbstractMongoEntityWithId<ObjectId>
 	{
+		public override string DatabaseKey { get { return "test"; } }
+		public override string CollectionKey { get { return "testCollection"; } }
+
 		public Guid Guid { get; set; }
 
 		[BsonElement("Date")]
