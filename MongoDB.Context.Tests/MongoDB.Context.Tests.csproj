@@ -96,6 +96,7 @@
     <Compile Include="ContextDeleteTests.cs" />
     <Compile Include="ContextInsertTests.cs" />
     <Compile Include="ContextMultipleOperationTests.cs" />
+    <Compile Include="ContextSubmitTests.cs" />
     <Compile Include="ContextTestBase.cs" />
     <Compile Include="ContextUpdateTests.cs" />
     <Compile Include="Lcs\SimpleObjectLcsTests.cs" />

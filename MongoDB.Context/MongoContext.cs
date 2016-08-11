@@ -7,7 +7,7 @@ namespace MongoDB.Context
 {
 	public class MongoContext : IDisposable
 	{
-		private bool _SubmittingChanges;
+		protected bool SubmittingChanges;
 		private readonly MongoClient _Client;
 		protected readonly Dictionary<Type, IMongoTrackedCollection> CollectionCache = new Dictionary<Type, IMongoTrackedCollection>();
 
@@ -36,21 +36,21 @@ namespace MongoDB.Context
 
 		#endregion
 
-		public void SubmitChanges()
+		public virtual void SubmitChanges()
 		{
-			if (_SubmittingChanges)
+			if (SubmittingChanges)
 				throw new Exception("Already submitting changes");
 
 			try
 			{
-				_SubmittingChanges = true;
+				SubmittingChanges = true;
 
 				foreach (var collection in CollectionCache.Values)
 					collection.SubmitChanges();
 			}
 			finally
 			{
-				_SubmittingChanges = false;
+				SubmittingChanges = false;
 			}
 		}
 
