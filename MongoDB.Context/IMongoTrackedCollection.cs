@@ -1,4 +1,5 @@
 ﻿using System.Collections.Generic;
+using System.Linq;
 using MongoDB.Driver;
 
 namespace MongoDB.Context
@@ -9,7 +10,7 @@ namespace MongoDB.Context
 	/// <typeparam name="TDocument">The .NET type of the MongoDB entity</typeparam>
 	/// <typeparam name="TIdField">The .NET type of the ID field for the MongoDB entity</typeparam>
 	public interface IMongoTrackedCollection<TDocument, TIdField> 
-		: IMongoTrackedCollection, IEnumerable<TDocument>
+		: IMongoTrackedCollection, IQueryable<TDocument>
 		where TDocument : AbstractMongoEntityWithId<TIdField>
 	{
 		void InsertOnSubmit(TDocument entity);

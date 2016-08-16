@@ -1,5 +1,4 @@
-﻿using System.Collections.Generic;
-using System.Linq;
+﻿using System.Linq;
 
 namespace MongoDB.Context.Tests
 {
@@ -12,11 +11,7 @@ namespace MongoDB.Context.Tests
 		public MockMongoTrackedCollection(TDocument[] entities)
 		{
 			_Entities = entities;
-		}
-
-		public override IEnumerator<TDocument> GetEnumerator()
-		{
-			return new TrackingEntityEnumerator<TDocument, TIdField>(TrackedEntities, _Entities.AsQueryable());
+			CollectionQueryable = entities.AsQueryable();
 		}
 	}
 }

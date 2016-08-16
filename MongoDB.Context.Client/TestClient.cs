@@ -5,6 +5,7 @@ using System.Text;
 using System.Text.RegularExpressions;
 using MongoDB.Bson;
 using MongoDB.Driver;
+using MongoDB.Driver.Core.Events;
 
 namespace MongoDB.Context.Client
 {
@@ -12,8 +13,21 @@ namespace MongoDB.Context.Client
 	{
 		static void Main(string[] args)
 		{
-			using (var ctx = new MongoContext(new MongoClient()))
+			var mongoClient = new MongoClient(new MongoClientSettings
 			{
+				ClusterConfigurator = builder =>
+				{
+					builder.Subscribe<CommandStartedEvent>(e =>
+					{
+						var cmdPause = 1;
+					});
+				}
+			});
+			using (var ctx = new MongoContext(mongoClient))
+			{
+				var test =
+					ctx.TestEntities.Where(z => z.Enum == EnumTest.Value1 || z.SimpleArray.Any(a => a.Integer == 100)).ToArray();
+
 				var x = ctx.TestEntities.First();
 				x.SimpleArray = new List<SimpleObject>
 				{

@@ -84,7 +84,9 @@
     <Compile Include="TestEntity.cs" />
     <Compile Include="TrackedCollection.cs" />
     <Compile Include="TrackedEntity.cs" />
-    <Compile Include="TrackingEntityEnumerator.cs" />
+    <Compile Include="TrackingMongoEnumerator.cs" />
+    <Compile Include="TrackingMongoEntityBase.cs" />
+    <Compile Include="TrackingMongoQueryProvider.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="App.config" />

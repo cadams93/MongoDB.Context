@@ -20,7 +20,9 @@ namespace MongoDB.Context
 	{
 		private readonly IMongoClient _Client;
 		private readonly IMongoCollection<TDocument> _Collection;
+		private IQueryProvider _TrackingCollectionQueryProvider;
 		protected readonly TrackedCollection<TDocument, TIdField> TrackedEntities = new TrackedCollection<TDocument, TIdField>();
+		protected IQueryable<TDocument> CollectionQueryable;
 
 		protected MongoTrackedCollection() {}
 		public MongoTrackedCollection(IMongoClient client)
@@ -31,6 +33,8 @@ namespace MongoDB.Context
 
 			_Collection = client.GetDatabase(doc.DatabaseKey).GetCollection<TDocument>(doc.CollectionKey);
 			_Client = client;
+
+			CollectionQueryable = _Collection.AsQueryable();
 		}
 
 		/// <summary>
@@ -227,17 +231,31 @@ namespace MongoDB.Context
 		public IEnumerable<TDocument> FindUsingFilter(FilterDefinition<TDocument> pred = null)
 		{
 			pred = pred ?? new ExpressionFilterDefinition<TDocument>(z => true);
-			return new TrackingEntityEnumerator<TDocument, TIdField>(TrackedEntities, _Collection.FindSync(pred).ToList()).Iterate();
+			return new TrackingMongoEnumerator<TDocument, TIdField>(TrackedEntities, _Collection.FindSync(pred).ToList().AsQueryable()).Iterate();
 		}
 
-		public virtual IEnumerator<TDocument> GetEnumerator()
+		public IEnumerator<TDocument> GetEnumerator()
 		{
-			return new TrackingEntityEnumerator<TDocument, TIdField>(TrackedEntities, _Collection.AsQueryable());
+			return new TrackingMongoEnumerator<TDocument, TIdField>(TrackedEntities, CollectionQueryable);
 		}
 
 		IEnumerator IEnumerable.GetEnumerator()
 		{
 			return GetEnumerator();
+		}
+
+		public Expression Expression { get { return CollectionQueryable.Expression; } }
+		public Type ElementType { get { return CollectionQueryable.ElementType; } }
+
+		public IQueryProvider Provider
+		{
+			get
+			{
+				if (_TrackingCollectionQueryProvider == null)
+					_TrackingCollectionQueryProvider = new TrackingMongoQueryProvider<TDocument, TIdField>(TrackedEntities, CollectionQueryable.Provider);
+
+				return _TrackingCollectionQueryProvider;
+			}
 		}
 	}
 }
