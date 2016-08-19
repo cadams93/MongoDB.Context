@@ -1,4 +1,5 @@
-﻿using MongoDB.Context.Lcs;
+﻿using MongoDB.Context.Client;
+using MongoDB.Context.Lcs;
 using NUnit.Framework;
 
 namespace MongoDB.Context.Tests.Lcs

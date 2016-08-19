@@ -1,11 +1,14 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio 2013
-VisualStudioVersion = 12.0.31101.0
+VisualStudioVersion = 12.0.21005.1
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MongoDB.Context", "MongoDB.Context\MongoDB.Context.csproj", "{07E579A2-8B9A-4084-83C7-D1C128FC0517}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MongoDB.Context.Tests", "MongoDB.Context.Tests\MongoDB.Context.Tests.csproj", "{BDB93B3F-9566-4ADF-B823-4F45A5612034}"
+	ProjectSection(ProjectDependencies) = postProject
+		{5033D398-D014-4A33-A784-D5FE84D1155D} = {5033D398-D014-4A33-A784-D5FE84D1155D}
+	EndProjectSection
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = ".nuget", ".nuget", "{91D8F1E9-075F-423B-8281-25DD28102324}"
 	ProjectSection(SolutionItems) = preProject

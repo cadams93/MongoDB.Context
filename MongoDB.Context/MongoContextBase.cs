@@ -5,23 +5,16 @@ using MongoDB.Driver;
 
 namespace MongoDB.Context
 {
-	public class MongoContext : IDisposable
+	public abstract class MongoContextBase : IDisposable
 	{
 		protected bool SubmittingChanges;
 		private readonly MongoClient _Client;
 		protected readonly Dictionary<Type, IMongoTrackedCollection> CollectionCache = new Dictionary<Type, IMongoTrackedCollection>();
 
-		protected MongoContext() {}
-		public MongoContext(MongoClient client)
+		protected MongoContextBase() {}
+		public MongoContextBase(MongoClient client)
 		{
 			_Client = client;
-		}
-
-		#region Entities
-
-		public IMongoTrackedCollection<TestEntity, ObjectId> TestEntities
-		{
-			get { return GetCollection<TestEntity, ObjectId>(); }
 		}
 
 		protected virtual IMongoTrackedCollection<TDocument, TIdField> GetCollection<TDocument, TIdField>()
@@ -29,12 +22,10 @@ namespace MongoDB.Context
 		{
 			var type = typeof(IMongoTrackedCollection<TDocument, TIdField>);
 			if (!CollectionCache.ContainsKey(type))
-				CollectionCache.Add(type, new MongoTrackedCollection<TestEntity, ObjectId>(_Client));
+				CollectionCache.Add(type, new MongoTrackedCollection<TDocument, TIdField>(_Client));
 
 			return (IMongoTrackedCollection<TDocument, TIdField>)CollectionCache[type];
 		}
-
-		#endregion
 
 		public virtual void SubmitChanges()
 		{

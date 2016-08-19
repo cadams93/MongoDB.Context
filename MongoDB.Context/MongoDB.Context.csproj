@@ -78,10 +78,9 @@
     <Compile Include="MongoChangeFactory.cs" />
     <Compile Include="MongoChangeSet.cs" />
     <Compile Include="MongoCollectionChangeSet.cs" />
-    <Compile Include="MongoContext.cs" />
+    <Compile Include="MongoContextBase.cs" />
     <Compile Include="MongoTrackedCollection.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
-    <Compile Include="TestEntity.cs" />
     <Compile Include="TrackedCollection.cs" />
     <Compile Include="TrackedEntity.cs" />
     <Compile Include="TrackingMongoEnumerator.cs" />

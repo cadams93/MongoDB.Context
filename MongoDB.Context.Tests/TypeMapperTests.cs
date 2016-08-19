@@ -2,6 +2,7 @@
 using System.Linq;
 using MongoDB.Bson;
 using NUnit.Framework;
+using MongoDB.Context.Client;
 
 namespace MongoDB.Context.Tests
 {

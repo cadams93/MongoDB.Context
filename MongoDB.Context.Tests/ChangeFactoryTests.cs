@@ -5,6 +5,7 @@ using MongoDB.Context.Bson.Differences;
 using MongoDB.Context.Locking;
 using MongoDB.Driver;
 using NUnit.Framework;
+using MongoDB.Context.Client;
 
 namespace MongoDB.Context.Tests
 {

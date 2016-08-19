@@ -1,0 +1,14 @@
+﻿################################################################################
+# This .gitignore file was automatically created by Microsoft(R) Visual Studio.
+################################################################################
+
+/packages/NUnit3TestAdapter.3.4.0/lib
+/packages/NUnit3TestAdapter.3.4.0
+*.suo
+/packages
+/MongoDB.Context.Tests/bin/Debug
+/MongoDB.Context.Tests/obj/Debug
+/MongoDB.Context.Client/obj/Debug
+/MongoDB.Context.Client/bin/Debug
+/MongoDB.Context/obj/Debug
+/MongoDB.Context/bin/Debug

@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Threading;
 using MongoDB.Bson;
+using MongoDB.Context.Client;
 
 namespace MongoDB.Context.Tests
 {

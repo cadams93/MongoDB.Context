@@ -109,6 +109,10 @@
     <Compile Include="TypeMapperTests.cs" />
   </ItemGroup>
   <ItemGroup>
+    <ProjectReference Include="..\MongoDB.Context.Client\MongoDB.Context.Client.csproj">
+      <Project>{5033d398-d014-4a33-a784-d5fe84d1155d}</Project>
+      <Name>MongoDB.Context.Client</Name>
+    </ProjectReference>
     <ProjectReference Include="..\MongoDB.Context\MongoDB.Context.csproj">
       <Project>{07E579A2-8B9A-4084-83C7-D1C128FC0517}</Project>
       <Name>MongoDB.Context</Name>
