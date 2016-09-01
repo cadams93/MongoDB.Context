@@ -58,7 +58,7 @@
   <ItemGroup>
     <Compile Include="AbstractMongoEntity.cs" />
     <Compile Include="AbstractMongoEntityWithId.cs" />
-    <Compile Include="MongoBsonTypeMapper.cs" />
+    <Compile Include="Bson\BsonTypeMapper.cs" />
     <Compile Include="Bson\BsonArrayComparer.cs" />
     <Compile Include="Bson\BsonArrayLcsAlgorithm.cs" />
     <Compile Include="Bson\BsonComparer.cs" />
@@ -68,25 +68,24 @@
     <Compile Include="Bson\Differences\BsonArrayItemDifferenceType.cs" />
     <Compile Include="Bson\Differences\BsonDifference.cs" />
     <Compile Include="Bson\Differences\BsonFieldDifference.cs" />
-    <Compile Include="EntityState.cs" />
-    <Compile Include="IMongoTrackedCollection.cs" />
+    <Compile Include="Enums\EntityState.cs" />
+    <Compile Include="Tracking\IMongoTrackedCollection.cs" />
     <Compile Include="Lcs\LcsAlgorithm.cs" />
     <Compile Include="Lcs\LcsResult.cs" />
     <Compile Include="Locking\MongoLockRequest.cs" />
     <Compile Include="Locking\MongoLock.cs" />
     <Compile Include="Locking\MongoLockProvider.cs" />
-    <Compile Include="MongoChange.cs" />
-    <Compile Include="MongoChangeFactory.cs" />
-    <Compile Include="MongoChangeSet.cs" />
-    <Compile Include="MongoCollectionChangeSet.cs" />
+    <Compile Include="Changes\MongoChange.cs" />
+    <Compile Include="Changes\MongoChangeFactory.cs" />
+    <Compile Include="Changes\MongoCollectionChangeSet.cs" />
     <Compile Include="MongoContextBase.cs" />
-    <Compile Include="MongoTrackedCollection.cs" />
+    <Compile Include="Tracking\MongoTrackedCollection.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
-    <Compile Include="TrackedCollection.cs" />
-    <Compile Include="TrackedEntity.cs" />
-    <Compile Include="TrackingMongoEnumerator.cs" />
-    <Compile Include="TrackingMongoEntityBase.cs" />
-    <Compile Include="TrackingMongoQueryProvider.cs" />
+    <Compile Include="Tracking\TrackedCollection.cs" />
+    <Compile Include="Tracking\TrackedEntity.cs" />
+    <Compile Include="Tracking\TrackingMongoEnumerator.cs" />
+    <Compile Include="Tracking\TrackingMongoEntityBase.cs" />
+    <Compile Include="Tracking\TrackingMongoQueryProvider.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="App.config" />

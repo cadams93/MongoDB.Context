@@ -1,6 +1,6 @@
 ﻿using MongoDB.Driver;
 
-namespace MongoDB.Context
+namespace MongoDB.Context.Changes
 {
 	public class MongoChange<TDocument, TIdField> 
 		where TDocument : AbstractMongoEntityWithId<TIdField>

@@ -12,7 +12,7 @@ namespace MongoDB.Context.Tests
 		[Test]
 		public void Should_MapToString_WhenBsonString()
 		{
-			var type = MongoBsonTypeMapper<TestEntity, ObjectId>.GetDotNetValue(new object[] {"String"}, BsonString.Create("TEST"));
+			var type = BsonTypeMapper<TestEntity, ObjectId>.GetDotNetValue(new object[] {"String"}, BsonString.Create("TEST"));
 			Assert.That(type, Is.TypeOf<string>());
 			Assert.That(type, Is.EqualTo("TEST"));
 		}
@@ -20,7 +20,7 @@ namespace MongoDB.Context.Tests
 		[Test]
 		public void Should_MapToInteger_WhenBsonInteger()
 		{
-			var type = MongoBsonTypeMapper<TestEntity, ObjectId>.GetDotNetValue(new object[] {"Integer"}, BsonInt32.Create(1));
+			var type = BsonTypeMapper<TestEntity, ObjectId>.GetDotNetValue(new object[] {"Integer"}, BsonInt32.Create(1));
 			Assert.That(type, Is.TypeOf<int>());
 			Assert.That(type, Is.EqualTo(1));
 		}
@@ -28,7 +28,7 @@ namespace MongoDB.Context.Tests
 		[Test]
 		public void Should_MapToNull_WhenBsonNull()
 		{
-			var type = MongoBsonTypeMapper<TestEntity, ObjectId>.GetDotNetValue(new object[] {"String"}, BsonNull.Value);
+			var type = BsonTypeMapper<TestEntity, ObjectId>.GetDotNetValue(new object[] {"String"}, BsonNull.Value);
 			Assert.That(type, Is.EqualTo(null));
 		}
 
@@ -38,7 +38,7 @@ namespace MongoDB.Context.Tests
 			var stringArray = new [] {"A", "B", "C"};
 			var bsonStringArray = BsonTypeMapper.MapToBsonValue(stringArray);
 
-			var type = MongoBsonTypeMapper<TestEntity, ObjectId>.GetDotNetValue(new object[] {"StringArray"}, bsonStringArray);
+			var type = BsonTypeMapper<TestEntity, ObjectId>.GetDotNetValue(new object[] {"StringArray"}, bsonStringArray);
 			Assert.That(type, Is.TypeOf<object[]>());
 			Assert.That(type, Is.EqualTo(new []{"A", "B", "C"}));
 		}
@@ -52,7 +52,7 @@ namespace MongoDB.Context.Tests
 				{"String", "TEST"}
 			};
 
-			var type = MongoBsonTypeMapper<TestEntity, ObjectId>.GetDotNetValue(new object[] { "SimpleArray", 0 }, simpleObj);
+			var type = BsonTypeMapper<TestEntity, ObjectId>.GetDotNetValue(new object[] { "SimpleArray", 0 }, simpleObj);
 			Assert.That(type, Is.TypeOf<SimpleObject>());
 		}
 
@@ -65,7 +65,7 @@ namespace MongoDB.Context.Tests
 				{"String", "TEST"}
 			};
 
-			var type = MongoBsonTypeMapper<TestEntity, ObjectId>.GetDotNetValue(new object[] { "SomeOtherProperty" }, simpleObj);
+			var type = BsonTypeMapper<TestEntity, ObjectId>.GetDotNetValue(new object[] { "SomeOtherProperty" }, simpleObj);
 			Assert.That(type, Is.TypeOf<Dictionary<string, object>>());
 		}
 
@@ -85,7 +85,7 @@ namespace MongoDB.Context.Tests
 				}
 			};
 
-			var type = MongoBsonTypeMapper<TestEntity, ObjectId>.GetDotNetValue(new object[] { "SimpleArray" }, simpleObjArray);
+			var type = BsonTypeMapper<TestEntity, ObjectId>.GetDotNetValue(new object[] { "SimpleArray" }, simpleObjArray);
 			Assert.That(type, Is.TypeOf<object[]>());
 			Assert.That(((IEnumerable<object>)type).First(), Is.InstanceOf<SimpleObject>());
 		}

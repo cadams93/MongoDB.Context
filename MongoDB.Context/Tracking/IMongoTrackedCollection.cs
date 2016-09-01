@@ -1,8 +1,9 @@
 ﻿using System.Collections.Generic;
 using System.Linq;
 using MongoDB.Driver;
+using MongoDB.Context.Changes;
 
-namespace MongoDB.Context
+namespace MongoDB.Context.Tracking
 {
 	/// <summary>
 	/// Provides the base funtionality for a tracked MongoDB entity collection

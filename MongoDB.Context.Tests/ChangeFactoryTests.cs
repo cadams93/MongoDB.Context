@@ -6,6 +6,9 @@ using MongoDB.Context.Locking;
 using MongoDB.Driver;
 using NUnit.Framework;
 using MongoDB.Context.Client;
+using MongoDB.Context.Changes;
+using MongoDB.Context.Enums;
+using MongoDB.Context.Tracking;
 
 namespace MongoDB.Context.Tests
 {

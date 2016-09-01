@@ -2,6 +2,7 @@
 using System.Threading;
 using MongoDB.Bson;
 using MongoDB.Context.Client;
+using MongoDB.Context.Tracking;
 
 namespace MongoDB.Context.Tests
 {

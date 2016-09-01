@@ -1,4 +1,4 @@
-﻿namespace MongoDB.Context
+﻿namespace MongoDB.Context.Enums
 {
 	public enum EntityState
 	{

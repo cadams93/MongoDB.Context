@@ -1,8 +1,9 @@
 ﻿using System.Collections.Generic;
 using System.Linq;
 using MongoDB.Context.Bson.Differences;
+using MongoDB.Context.Tracking;
 
-namespace MongoDB.Context
+namespace MongoDB.Context.Changes
 {
 	public class MongoCollectionChangeSet<TDocument, TIdField> 
 		where TDocument : AbstractMongoEntityWithId<TIdField>

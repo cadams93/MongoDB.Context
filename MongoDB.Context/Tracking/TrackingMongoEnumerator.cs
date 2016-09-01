@@ -3,7 +3,7 @@ using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 
-namespace MongoDB.Context
+namespace MongoDB.Context.Tracking
 {
 	public class TrackingMongoEnumerator<TDocument, TIdField>
 		: TrackingMongoEntityBase<TDocument, TIdField>, IEnumerator<TDocument>

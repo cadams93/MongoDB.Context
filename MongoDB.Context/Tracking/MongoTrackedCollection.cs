@@ -5,8 +5,10 @@ using System.Linq;
 using System.Linq.Expressions;
 using MongoDB.Context.Locking;
 using MongoDB.Driver;
+using MongoDB.Context.Changes;
+using MongoDB.Context.Enums;
 
-namespace MongoDB.Context
+namespace MongoDB.Context.Tracking
 {
 	/// <summary>
 	/// Base implementation of a tracked collection of MongoDB entities

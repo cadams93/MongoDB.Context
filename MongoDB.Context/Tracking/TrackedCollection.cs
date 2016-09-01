@@ -1,8 +1,9 @@
-﻿using System;
+﻿using MongoDB.Context.Enums;
+using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 
-namespace MongoDB.Context
+namespace MongoDB.Context.Tracking
 {
 	/// <summary>
 	/// Tracked collection of MongoDB entities, allowing retreival by document or by ID

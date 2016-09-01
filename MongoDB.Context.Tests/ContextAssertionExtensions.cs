@@ -1,5 +1,6 @@
 ﻿using System.Linq;
 using NUnit.Framework;
+using MongoDB.Context.Changes;
 
 namespace MongoDB.Context.Tests
 {

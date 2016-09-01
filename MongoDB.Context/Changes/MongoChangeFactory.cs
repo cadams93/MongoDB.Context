@@ -5,7 +5,7 @@ using MongoDB.Context.Bson.Differences;
 using MongoDB.Context.Locking;
 using MongoDB.Driver;
 
-namespace MongoDB.Context
+namespace MongoDB.Context.Changes
 {
 	public class MongoChangeFactory<TDocument, TIdField>
 		where TDocument : AbstractMongoEntityWithId<TIdField>
@@ -143,7 +143,7 @@ namespace MongoDB.Context
             }
             else
             {
-                var newValue = MongoBsonTypeMapper<TDocument, TIdField>
+                var newValue = BsonTypeMapper<TDocument, TIdField>
                     .GetDotNetValue(fieldChange.FieldPath, fieldChange.NewValue);
 
                 if (isRootFieldChange)
@@ -173,7 +173,7 @@ namespace MongoDB.Context
             switch (arrayChange.Type)
             {
                 case BsonArrayItemDifferenceType.Add:
-                    var newValue = MongoBsonTypeMapper<TDocument, TIdField>.GetDotNetValue(arrayChange.FieldPath, arrayChange.ArrayItem);
+                    var newValue = BsonTypeMapper<TDocument, TIdField>.GetDotNetValue(arrayChange.FieldPath, arrayChange.ArrayItem);
                     mongoChanges.Add(new MongoChange<TDocument, TIdField>
                     {
                         Change = new UpdateOneModel<TDocument>(

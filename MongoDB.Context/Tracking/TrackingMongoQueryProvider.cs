@@ -4,7 +4,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Linq.Expressions;
 
-namespace MongoDB.Context
+namespace MongoDB.Context.Tracking
 {
 	public class TrackingMongoQueryProvider<TDocument, TIdField> 
 		: TrackingMongoEntityBase<TDocument, TIdField>, IQueryProvider 

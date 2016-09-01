@@ -8,7 +8,7 @@ using MongoDB.Bson.Serialization.Attributes;
 
 namespace MongoDB.Context
 {
-	public static class MongoBsonTypeMapper<TDocument, TIdField>
+	public static class BsonTypeMapper<TDocument, TIdField>
 		where TDocument : AbstractMongoEntityWithId<TIdField>
 	{
 		public static object GetDotNetValue(object[] fieldPath, BsonValue value)

@@ -2,8 +2,9 @@
 using MongoDB.Bson;
 using MongoDB.Context.Bson;
 using MongoDB.Context.Bson.Differences;
+using MongoDB.Context.Enums;
 
-namespace MongoDB.Context
+namespace MongoDB.Context.Tracking
 {
 	public class TrackedEntity<TDocument, TIdField> 
 		where TDocument : AbstractMongoEntityWithId<TIdField>

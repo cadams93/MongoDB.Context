@@ -1,4 +1,6 @@
-﻿namespace MongoDB.Context
+﻿using MongoDB.Context.Enums;
+
+namespace MongoDB.Context.Tracking
 {
 	public abstract class TrackingMongoEntityBase<TDocument, TIdField> 
 		where TDocument : AbstractMongoEntityWithId<TIdField>
