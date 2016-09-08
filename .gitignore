@@ -14,3 +14,7 @@
 /MongoDB.Context/bin/Debug
 /MongoDB.Context.Tests/MongoDB.Context.Tests.csproj.user
 *.user
+/MongoDB.Context.Tests/obj/Release
+/MongoDB.Context.Client
+/MongoDB.Context
+/MongoDB.Context.Tests/bin/Release

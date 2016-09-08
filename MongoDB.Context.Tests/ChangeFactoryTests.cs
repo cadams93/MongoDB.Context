@@ -5,7 +5,7 @@ using MongoDB.Context.Bson.Differences;
 using MongoDB.Context.Locking;
 using MongoDB.Driver;
 using NUnit.Framework;
-using MongoDB.Context.Client;
+using MongoDB.Context.Tests.Entities;
 using MongoDB.Context.Changes;
 using MongoDB.Context.Enums;
 using MongoDB.Context.Tracking;

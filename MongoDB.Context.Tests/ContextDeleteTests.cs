@@ -1,6 +1,6 @@
 ﻿using System.Linq;
 using NUnit.Framework;
-using MongoDB.Context.Client;
+using MongoDB.Context.Tests.Entities;
 
 namespace MongoDB.Context.Tests
 {

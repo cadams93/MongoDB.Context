@@ -1,7 +1,7 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
-# Visual Studio 2013
-VisualStudioVersion = 12.0.21005.1
+# Visual Studio 14
+VisualStudioVersion = 14.0.25420.1
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MongoDB.Context", "MongoDB.Context\MongoDB.Context.csproj", "{07E579A2-8B9A-4084-83C7-D1C128FC0517}"
 EndProject
@@ -31,9 +31,7 @@ Global
 		{BDB93B3F-9566-4ADF-B823-4F45A5612034}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{BDB93B3F-9566-4ADF-B823-4F45A5612034}.Release|Any CPU.Build.0 = Release|Any CPU
 		{C2B397BE-F4D4-4556-B3F4-3E28C43FF9D7}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{C2B397BE-F4D4-4556-B3F4-3E28C43FF9D7}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{C2B397BE-F4D4-4556-B3F4-3E28C43FF9D7}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{C2B397BE-F4D4-4556-B3F4-3E28C43FF9D7}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

@@ -1,4 +1,4 @@
-﻿using MongoDB.Context.Client;
+﻿using MongoDB.Context.Tests.Entities;
 using NUnit.Framework;
 
 namespace MongoDB.Context.Tests
