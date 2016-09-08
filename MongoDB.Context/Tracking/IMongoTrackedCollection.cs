@@ -28,6 +28,6 @@ namespace MongoDB.Context.Tracking
 	/// </summary>
 	public interface IMongoTrackedCollection
 	{
-		void SubmitChanges();
+		void SubmitChanges(WriteConcern writeConcern = null);
 	}
 }

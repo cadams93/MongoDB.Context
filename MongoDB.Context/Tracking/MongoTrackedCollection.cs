@@ -155,7 +155,8 @@ namespace MongoDB.Context.Tracking
 		/// <summary>
 		/// Synchronises the tracked entities with MongoDB
 		/// </summary>
-		public void SubmitChanges()
+        /// <param name="writeConcern"></param>
+		public void SubmitChanges(WriteConcern writeConcern = null)
 		{
 			var changeSet = GetChanges();
 			var changeFactory = new MongoChangeFactory<TDocument, TIdField>();
@@ -174,52 +175,58 @@ namespace MongoDB.Context.Tracking
 						throw new Exception("Failed to acquire all required locks");
 
 					// Updates requiring locks (plus Inserts and Deletes in same context)
-					SubmitChangesImpl(changes);
+					SubmitChangesImpl(changes, writeConcern: writeConcern);
 					return;
 				}
 			}
 
 			// Inserts and Deletes only
-			SubmitChangesImpl(changes);
+			SubmitChangesImpl(changes, writeConcern: writeConcern);
 		}
 
-		private void SubmitChangesImpl(IEnumerable<MongoChange<TDocument, TIdField>> changes)
+		private void SubmitChangesImpl(IEnumerable<MongoChange<TDocument, TIdField>> changes, WriteConcern writeConcern = null)
 		{
 			var mongoChanges = changes.ToArray();
 
 			var deletes = mongoChanges.Where(z => z.Change.ModelType == WriteModelType.DeleteOne).ToArray();
 			if (deletes.Any())
 			{
-				var deleteResults = BulkWriteChanges(deletes);
+				var deleteResults = BulkWriteChanges(deletes, writeConcern: writeConcern);
 			}
 
 			var inserts = mongoChanges.Where(z => z.Change.ModelType == WriteModelType.InsertOne).ToArray();
 			if (inserts.Any())
 			{
-				var insertResults = BulkWriteChanges(inserts);
+				var insertResults = BulkWriteChanges(inserts, writeConcern: writeConcern);
 			}
 
 			var updates = mongoChanges.Where(z => z.Change.ModelType == WriteModelType.UpdateOne).ToArray();
 			if (updates.Any())
 			{
-				var updateResults = BulkWriteChanges(updates);
+				var updateResults = BulkWriteChanges(updates, writeConcern: writeConcern);
 			}
 
 			// Cleanup the state of all of the tracked objects
 			TrackedEntities.CleanupEntityStateAfterSubmit();
 		}
 
-		private Dictionary<int, BulkWriteResult<TDocument>> BulkWriteChanges(IEnumerable<MongoChange<TDocument, TIdField>> changesForOperation, bool stopOnFailure = true)
+		private Dictionary<int, BulkWriteResult<TDocument>> BulkWriteChanges(
+            IEnumerable<MongoChange<TDocument, TIdField>> changesForOperation, bool stopOnFailure = true, WriteConcern writeConcern = null)
 		{
 			var bulkWriteResults = new Dictionary<int, BulkWriteResult<TDocument>>();
 
 			foreach (var mongoChangeGroup in changesForOperation.GroupBy(z => z.ExecutionOrder))
 			{
-				var result = _Collection.BulkWrite(mongoChangeGroup.Select(z => z.Change));
+				var result = _Collection.WithWriteConcern(writeConcern ?? WriteConcern.Acknowledged)
+                    .BulkWrite(mongoChangeGroup.Select(z => z.Change));
+
 				bulkWriteResults.Add(mongoChangeGroup.Key, result);
 
-				if (stopOnFailure && result.ProcessedRequests.Count() != result.RequestCount) return bulkWriteResults;
-			}
+				if (stopOnFailure && result.ProcessedRequests.Count() != result.RequestCount)
+                {
+                    return bulkWriteResults;
+                }
+            }
 
 			return bulkWriteResults;
 		}

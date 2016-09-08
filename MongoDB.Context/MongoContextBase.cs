@@ -1,12 +1,11 @@
 ﻿using System;
 using System.Collections.Generic;
-using MongoDB.Bson;
 using MongoDB.Driver;
 using MongoDB.Context.Tracking;
 
 namespace MongoDB.Context
 {
-	public abstract class MongoContextBase : IDisposable
+    public abstract class MongoContextBase : IDisposable
 	{
 		protected bool SubmittingChanges;
 		private readonly MongoClient _Client;
@@ -38,7 +37,7 @@ namespace MongoDB.Context
 				SubmittingChanges = true;
 
 				foreach (var collection in CollectionCache.Values)
-					collection.SubmitChanges();
+					collection.SubmitChanges(writeConcern: this.WriteConcern);
 			}
 			finally
 			{
@@ -50,5 +49,10 @@ namespace MongoDB.Context
 		{
 			CollectionCache.Clear();
 		}
-	}
+
+        public virtual WriteConcern WriteConcern
+        {
+            get { return WriteConcern.Acknowledged; }
+        }
+    }
 }
