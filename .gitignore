@@ -12,3 +12,5 @@
 /MongoDB.Context.Client/bin/Debug
 /MongoDB.Context/obj/Debug
 /MongoDB.Context/bin/Debug
+/MongoDB.Context.Tests/MongoDB.Context.Tests.csproj.user
+*.user

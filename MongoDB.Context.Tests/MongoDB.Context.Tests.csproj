@@ -8,7 +8,7 @@
     <AppDesignerFolder>Properties</AppDesignerFolder>
     <RootNamespace>MongoDB.Context.Tests</RootNamespace>
     <AssemblyName>MongoDB.Context.Tests</AssemblyName>
-    <TargetFrameworkVersion>v4.6</TargetFrameworkVersion>
+    <TargetFrameworkVersion>v4.6.1</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
     <ProjectTypeGuids>{3AC096D0-A1C2-E12C-1390-A8335801FDAB};{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}</ProjectTypeGuids>
     <VisualStudioVersion Condition="'$(VisualStudioVersion)' == ''">10.0</VisualStudioVersion>
@@ -111,7 +111,7 @@
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\MongoDB.Context.Client\MongoDB.Context.Client.csproj">
-      <Project>{5033d398-d014-4a33-a784-d5fe84d1155d}</Project>
+      <Project>{c2b397be-f4d4-4556-b3f4-3e28c43ff9d7}</Project>
       <Name>MongoDB.Context.Client</Name>
     </ProjectReference>
     <ProjectReference Include="..\MongoDB.Context\MongoDB.Context.csproj">
